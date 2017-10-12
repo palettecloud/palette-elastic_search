@@ -58,6 +58,36 @@ puts query.to_s # => "{:query=>{:bool=>{:must=>[{:bool=>{:must=>[{:simple_query_
 - `kana`
 - `keyword_analyzer`
 
+## Rake Task
+
+### Reindex
+
+update all indices
+
+```
+rake palette:elastic_search:update_index!
+```
+
+or update specified index
+
+```
+rake palette:elastic_search:update_index! CLASS=<Model>
+```
+
+### Delete Index
+
+delete all indices
+
+```
+rake palette:elastic_search:delete_index!
+```
+
+or delete specified index
+
+```
+rake palette:elastic_search:delete_index! CLASS=<Model>
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/palette-elastic_search. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
