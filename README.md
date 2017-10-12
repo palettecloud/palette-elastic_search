@@ -41,7 +41,7 @@ Then mapping scheme based `AND` query can be create by `Palette::ElasticSearch::
 models = [User]
 attributes = { name: 'Jobs', age: 25 }
 query = Palette::ElasticSearch::QueryFactory.build(models, attributes)
-puts query.to_s # => {:query=>{:bool=>{:must=>[{:bool=>{:must=>[{:match=>{\"name\"=>{:query=>\"Jobs\", :analyzer=>\"bigram\"}}}]}}, {:bool=>{:must=>[{:match=>{\"age\"=>{:query=>\"25\", :analyzer=>\"keyword_analyzer\"}}}]}}], :filter=>{}}}}
+puts query.to_s # => {:query=>{:bool=>{:must=>[{:bool=>{:must=>[{:match=>{\"name\"=>{:query=>\"Jobs\", :analyzer=>\"ngram\"}}}]}}, {:bool=>{:must=>[{:match=>{\"age\"=>{:query=>\"25\", :analyzer=>\"keyword_analyzer\"}}}]}}], :filter=>{}}}}
 ```
 
 If attribute value includes space, value is divided and `AND` query is generated.
@@ -49,12 +49,12 @@ If attribute value includes space, value is divided and `AND` query is generated
 ```ruby
 attributes = { name: 'Stebe Jobs', age: 25 }
 query = Palette::ElasticSearch::QueryFactory.build(models, attributes)
-puts query.to_s # => "{:query=>{:bool=>{:must=>[{:bool=>{:must=>[{:simple_query_string=>{:query=>\"Steve\", :fields=>[\"name\"], :analyzer=>\"bigram\"}}, {:simple_query_string=>{:query=>\"Jobs\", :fields=>[\"name\"], :analyzer=>\"bigram\"}}]}}], :filter=>{}}}}" 
+puts query.to_s # => "{:query=>{:bool=>{:must=>[{:bool=>{:must=>[{:simple_query_string=>{:query=>\"Steve\", :fields=>[\"name\"], :analyzer=>\"ngram\"}}, {:simple_query_string=>{:query=>\"Jobs\", :fields=>[\"name\"], :analyzer=>\"ngram\"}}]}}], :filter=>{}}}}" 
 ```
 
 ## Analyzer
 
-- `bigram`
+- `ngram`
 - `kana`
 - `keyword_analyzer`
 

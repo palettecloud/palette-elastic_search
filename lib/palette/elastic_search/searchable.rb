@@ -115,9 +115,9 @@ module Palette
                            type: 'kuromoji_tokenizer',
                            mode: 'extended'
                          },
-                         bi_gram: {
+                         n_gram: {
                            type: 'ngram',
-                           min_gram: 2,
+                           min_gram: 1,
                            max_gram: 2,
                            token_chars: %W(letter digit)
                          }
@@ -139,12 +139,12 @@ module Palette
                            tokenizer: 'keyword',
                            char_filter: %W(my_icu_normalizer company_name_trimmer)
                          },
-                         bigram: {
-                           tokenizer: 'bi_gram',
+                         ngram: {
+                           tokenizer: 'n_gram',
                            char_filter: %W(my_icu_normalizer)
                          },
                          katakana: {
-                           tokenizer: 'bi_gram',
+                           tokenizer: 'n_gram',
                            char_filter: %W(my_icu_normalizer)
                          }
                        },

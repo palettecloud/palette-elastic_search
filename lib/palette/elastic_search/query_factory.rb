@@ -1,7 +1,7 @@
 module Palette
   module ElasticSearch
     module QueryFactory
-      PARTIAL_MATCH_ANALYZERS = %w(kuromoji_analyzer bigram katakana).freeze
+      PARTIAL_MATCH_ANALYZERS = %w(kuromoji_analyzer ngram katakana).freeze
 
       module ModuleMethods
         # @param [Array<ActiveRecord::Base>] models 検索対象のモデルの配列
@@ -82,7 +82,7 @@ module Palette
                    { bool: { must: [] } }
                  end
           query.sub(/\A[[:space:]]+/, '').split(/[[:blank:]]+/).each do |q|
-            hash[:bool][:must] << { simple_query_string: { query: q, fields: fields, analyzer: 'bigram' } }
+            hash[:bool][:must] << { simple_query_string: { query: q, fields: fields, analyzer: 'ngram' } }
           end
           hash
         end
