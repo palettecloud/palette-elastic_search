@@ -58,7 +58,7 @@ puts query.to_s # => "{:query=>{:bool=>{:must=>[{:bool=>{:must=>[{:simple_query_
 - `kana`
 - `keyword_analyzer`
 
-## Rake Task
+## Rake Tasks
 
 ### Reindex
 
