@@ -82,7 +82,7 @@ module Palette
                    { bool: { must: [] } }
                  end
           query.sub(/\A[[:space:]]+/, '').split(/[[:blank:]]+/).each do |q|
-            hash[:bool][:must] << { simple_query_string: { query: q, fields: fields, analyzer: 'bigram' } }
+            hash[:bool][:must] << { simple_query_string: { query: q, fields: fields, analyzer: 'ngram' } }
           end
           hash
         end

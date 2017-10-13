@@ -120,6 +120,12 @@ module Palette
                            min_gram: 2,
                            max_gram: 2,
                            token_chars: %W(letter digit)
+                         },
+                         n_gram: {
+                           type: 'ngram',
+                           min_gram: 1,
+                           max_gram: 2,
+                           token_chars: %W(letter digit)
                          }
                        },
                        analyzer: {
@@ -143,8 +149,12 @@ module Palette
                            tokenizer: 'bi_gram',
                            char_filter: %W(my_icu_normalizer)
                          },
+                         ngram: {
+                           tokenizer: 'n_gram',
+                           char_filter: %W(my_icu_normalizer)
+                         },
                          katakana: {
-                           tokenizer: 'bi_gram',
+                           tokenizer: 'n_gram',
                            char_filter: %W(my_icu_normalizer)
                          }
                        },
