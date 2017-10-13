@@ -2,6 +2,8 @@ module Palette
   module ElasticSearch
     module Searchable
       module ClassMethods
+        deprecated_analyzer = [:bigram].freeze
+
         def update_elasticsearch_index!
           if current_indices.present?
             # @note 既にindexが存在する場合はreindexを行う
@@ -42,6 +44,10 @@ module Palette
         # 3. aliasを設定する
         def create_index!
           new_index_name = get_new_index_name
+
+          # deprecatedのanalyzerを使用していないか判定
+          check_deprecated_analyzer
+
           # indexを作成する
           self.__elasticsearch__.client.indices.create index: new_index_name,
                                                        body: {
@@ -67,6 +73,10 @@ module Palette
         def reindex!
           new_index_name = get_new_index_name
           old_index_name = get_old_index_name
+
+          # deprecatedのanalyzerを使用していないか判定
+          check_deprecated_analyzer
+          
           # indexを作成
           self.__elasticsearch__.client.indices.create index: new_index_name,
                                                        body: {
@@ -86,6 +96,14 @@ module Palette
           self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
         end
 
+        def check_deprecated_analyzer
+          self.mappings.to_hash[self.model_name.param_key.to_sym][:properties].keys.each do |key|
+            case self.mappings.to_hash[self.model_name.param_key.to_sym][:properties][key][:analyzer]
+            when 'bigram'
+              Rails.logger.warn 'bigram is deprecated. use ngram instead'
+            end
+          end
+        end
       end
 
       extend ::ActiveSupport::Concern
