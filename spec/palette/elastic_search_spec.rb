@@ -45,11 +45,12 @@ RSpec.describe Palette::ElasticSearch do
   end
 
   describe 'get_query_pattern' do
+    before do
+      ::Palette::ElasticSearch::QueryFactory.send(:set_mappings_hashes, [User])
+    end
+
     context 'type is nested' do
       let(:field) { 'phone_numbers.number'.to_sym }
-      before do
-        ::Palette::ElasticSearch::QueryFactory.send(:set_mappings_hashes, [User])
-      end
       it 'nested is returned' do
         res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
         expect(res[:pattern]).to eq('nested')
@@ -58,14 +59,26 @@ RSpec.describe Palette::ElasticSearch do
 
     context 'type is date' do
       let(:field) { :created_at }
-      before do
-        ::Palette::ElasticSearch::QueryFactory.send(:set_mappings_hashes, [User])
-      end
       it 'date is returned' do
         res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
         expect(res[:pattern]).to eq('date')
       end
     end
-  end
 
+    context 'partial' do
+      let(:field) { :name }
+      it 'partial_match is returned' do
+        res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
+        expect(res[:pattern]).to eq('partial_match')
+      end
+    end
+
+    context 'full_match' do
+      let(:field) { :age }
+      it 'full_match is returned' do
+        res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
+        expect(res[:pattern]).to eq('full_match_with_analyzer')
+      end
+    end
+  end
 end

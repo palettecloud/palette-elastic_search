@@ -129,7 +129,7 @@ module Palette
               return { pattern: 'nested' }
             end
 
-            if PARTIAL_MATCH_ANALYZERS.include?(analyzer_by(index, field, should_nested))
+            if PARTIAL_MATCH_ANALYZERS.include?(analyzer_by(index, field, should_nested).to_s)
               return { pattern: 'partial_match' }
             else
               return { pattern: 'full_match_with_analyzer', analyzer: analyzer_by(index, field, should_nested) }
