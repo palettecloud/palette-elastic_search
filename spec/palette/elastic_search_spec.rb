@@ -3,8 +3,24 @@ require 'pry'
 require 'user'
 
 RSpec.describe Palette::ElasticSearch do
+
   it 'has a version number' do
     expect(Palette::ElasticSearch::VERSION).not_to be nil
+  end
+
+  describe 'build' do
+    let(:attributes) {
+      {
+        name: 'Steve Jobs',
+        age: 50,
+        'phone_numbers.number': '+81 01-2345-6789',
+        created_at: Date.today
+      }
+    }
+    it 'AND query is generated as much as the number of attributes' do
+      res = ::Palette::ElasticSearch::QueryFactory.build([User], attributes)
+      expect(res[:query][:bool][:must].size).to eq(attributes.keys.size)
+    end
   end
 
   describe 'test query_partial_for' do

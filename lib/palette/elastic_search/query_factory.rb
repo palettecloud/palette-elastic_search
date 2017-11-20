@@ -92,7 +92,7 @@ module Palette
         # @param [String] field
         # @return [Hash]
         def nested_for(query, field)
-          path = field.split('.').first
+          path = field.to_s.split('.').first
           query_pattern = get_query_pattern(field.to_sym, true)
           case query_pattern[:pattern].to_sym
             when :partial_match
