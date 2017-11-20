@@ -14,16 +14,16 @@ RSpec.describe Palette::ElasticSearch do
 
     context 'query dose not have a space' do
       let(:query) { 'Steve' }
-      let(:fields) { ['name'] }
+      let(:field) { 'name' }
       it 'single AND query is generated' do
-        res = ::Palette::ElasticSearch::QueryFactory.send(:query_partial_for, query, fields)
+        res = ::Palette::ElasticSearch::QueryFactory.send(:query_partial_for, query, field)
         expect(res[:bool][:must].size == 1).to eq(true)
       end
     end
 
     context 'query has a space' do
       let(:query) { 'Steve Jobs' }
-      let(:fields) { 'name' }
+      let(:field) { 'name' }
       it 'multiple AND query is generated' do
         res = ::Palette::ElasticSearch::QueryFactory.send(:query_partial_for, query, field)
         expect(res[:bool][:must].size > 1).to eq(true)
