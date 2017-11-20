@@ -27,6 +27,8 @@ module Palette
                 geo_point_query = geo_point_for(attributes)
               when :date
                 query_partial = date_for(attributes, field)
+              when :nested
+                query_partial = nested_for((attributes[attr]).to_s, field)
             end
 
             query_array << query_partial if query_partial.present?
@@ -60,7 +62,7 @@ module Palette
           { bool: { must: [{ match: { field => { query: query, analyzer: analyzer } } }] } }
         end
 
-        # for geo_point
+        # for geo_point query
         #
         # @param [Hash] attributes
         # @return [Hash]
@@ -68,7 +70,7 @@ module Palette
           { geo_distance: { distance: attributes[:geo_point][:distance], location: "#{attributes[:geo_point][:latitude]},#{attributes[:geo_point][:longitude]}" } }
         end
 
-        # for date
+        # for date query
         #
         # @param [Hash] attributes
         # @return [Hash]
@@ -82,6 +84,24 @@ module Palette
             query = { range: { field => { gte: Date.parse(attributes[field.to_sym].to_s) } } }
           end
           query
+        end
+
+        # for nested query
+        #
+        # @param [String] query
+        # @param [String] field
+        # @return [Hash]
+        def nested_for(query, field)
+          path = field.split('.').first
+          query_pattern = get_query_pattern(field.to_sym, true)
+          case query_pattern[:pattern].to_sym
+            when :partial_match
+              return { nested: { path: path, query: query_partial_for(query, field) } }
+            when :full_match_with_analyzer
+              return { nested: { path: path, query: full_match_for(query, field, query_pattern[:analyzer]) } }
+            else
+              return nil
+          end
         end
 
         # @param [Array<ActiveRecord::Base>] models
@@ -99,27 +119,47 @@ module Palette
         #
         # @param [Symbol] field
         # @return [void]
-        def get_query_pattern(field)
+        def get_query_pattern(field, should_nested = false)
           return { pattern: 'geo_point' } if field.to_sym == :geo_point
           @mappings_hashes.keys.each do |index|
-            if @mappings_hashes[index][field].present? && @mappings_hashes[index][field][:type].to_sym == :date
+            if type_by(index, field, should_nested).present? && type_by(index, field, should_nested) == :date
               return { pattern: 'date' }
             end
+            if type_by(index, field, should_nested).present? && type_by(index, field, should_nested) == :nested
+              return { pattern: 'nested' }
+            end
 
-            next unless @mappings_hashes[index][field]&.has_key?(:analyzer)
-
-            if PARTIAL_MATCH_ANALYZERS.include?(@mappings_hashes[index][field][:analyzer])
+            if PARTIAL_MATCH_ANALYZERS.include?(analyzer_by(index, field, should_nested))
               return { pattern: 'partial_match' }
             else
-              return { pattern: 'full_match_with_analyzer', analyzer: @mappings_hashes[index][field][:analyzer] }
+              return { pattern: 'full_match_with_analyzer', analyzer: analyzer_by(index, field, should_nested) }
             end
           end
 
           { pattern: 'partial_match' }
         end
 
-        def format_geo_point!(attributes)
+        def type_by(index, field, should_nested = false)
+          mapping = @mappings_hashes[index]
+          if should_nested
+            mapping = mapping[field.to_s.split('.').first.to_sym][:properties][field.to_s.split('.').last.to_sym]
+          else
+            mapping = mapping[field.to_s.split('.').first.to_sym]
+          end
+          mapping[:type]&.to_sym
+        end
 
+        def analyzer_by(index, field, should_nested = false)
+          mapping = @mappings_hashes[index]
+          if should_nested
+            mapping = mapping[field.to_s.split('.').first.to_sym][:properties][field.to_s.split('.').last.to_sym]
+          else
+            mapping = mapping[field.to_s.split('.').first.to_sym]
+          end
+          mapping[:analyzer]&.to_sym
+        end
+
+        def format_geo_point!(attributes)
           return unless attributes.key?(:longitude) || attributes.key?(:latitude) || attributes.key?(:distance)
 
           unless attributes.key?(:longitude) && attributes.key?(:latitude) && attributes.key?(:distance)
