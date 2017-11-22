@@ -16,6 +16,14 @@ module Palette
           end
         end
 
+        def index_name
+          "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}"
+        end
+
+        def document_type
+          self.table_name.underscore.singularize
+        end
+
         private
 
         def current_indices
@@ -62,16 +70,12 @@ module Palette
           }
           self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
         end
-
       end
 
       extend ::ActiveSupport::Concern
       included do
         include ::Elasticsearch::Model
         include ::Elasticsearch::Model::Callbacks
-
-        index_name "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}"
-        document_type self.table_name.underscore.singularize
 
         settings index:
                    {
