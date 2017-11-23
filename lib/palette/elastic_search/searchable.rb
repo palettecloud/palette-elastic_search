@@ -16,14 +16,18 @@ module Palette
           end
         end
 
+        def current_index_name
+          "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}"
+        end
+
         private
 
         def current_indices
-          self.__elasticsearch__.client.indices.get_aliases.keys.grep(/^#{self.index_name}/)
+          self.__elasticsearch__.client.indices.get_aliases.keys.grep(/^#{self.current_index_name}/)
         end
 
         def get_new_index_name
-          "#{self.index_name}_#{Time.now.strftime("%Y%m%d_%H%M%S")}"
+          "#{self.current_index_name}_#{Time.now.strftime("%Y%m%d_%H%M%S")}"
         end
 
         def get_old_index_name
@@ -40,7 +44,7 @@ module Palette
           self.__elasticsearch__.import(index: new_index_name)
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
-              { add: { index: new_index_name, alias: self.index_name } }
+              { add: { index: new_index_name, alias: self.current_index_name } }
             ]
           }
         end
@@ -56,8 +60,8 @@ module Palette
           self.__elasticsearch__.import(index: new_index_name)
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
-              { remove: { index: old_index_name, alias: self.index_name } },
-              { add: { index: new_index_name, alias: self.index_name } }
+              { remove: { index: old_index_name, alias: self.current_index_name } },
+              { add: { index: new_index_name, alias: self.current_index_name } }
             ]
           }
           self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
@@ -69,13 +73,8 @@ module Palette
         include ::Elasticsearch::Model
         include ::Elasticsearch::Model::Callbacks
 
-        def index_name
-          "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}"
-        end
-
-        def document_type
-          self.table_name.underscore.singularize
-        end
+        index_name self.current_index_name
+        document_type self.table_name.underscore.singularize
 
         settings index:
                    {
