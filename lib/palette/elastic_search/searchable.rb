@@ -16,10 +16,6 @@ module Palette
           end
         end
 
-        def index_name
-          "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}"
-        end
-
         private
 
         def current_indices
@@ -73,6 +69,7 @@ module Palette
         include ::Elasticsearch::Model
         include ::Elasticsearch::Model::Callbacks
 
+        index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
         document_type self.table_name.underscore.singularize
 
         settings index:
