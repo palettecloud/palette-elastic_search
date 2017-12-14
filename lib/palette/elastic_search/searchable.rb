@@ -69,6 +69,23 @@ module Palette
         include ::Elasticsearch::Model
         include ::Elasticsearch::Model::Callbacks
 
+        # @note for soft delete
+        after_create :index_document
+        after_update :update_document
+        after_destroy :delete_document
+
+        def index_document
+          self.__elasticsearch__.index_document
+        end
+
+        def update_document
+          self.__elasticsearch__.update_document
+        end
+
+        def delete_document
+          self.__elasticsearch__.delete_document
+        end
+
         index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
         document_type self.table_name.underscore.singularize
 
