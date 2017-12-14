@@ -70,18 +70,8 @@ module Palette
         include ::Elasticsearch::Model::Callbacks
 
         # @note for soft delete
-        after_create :index_document
-        after_update :update_document
         after_destroy :delete_document
-
-        def index_document
-          self.__elasticsearch__.index_document
-        end
-
-        def update_document
-          self.__elasticsearch__.update_document
-        end
-
+        
         def delete_document
           self.__elasticsearch__.delete_document
         end
