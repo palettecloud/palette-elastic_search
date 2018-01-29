@@ -76,7 +76,14 @@ module Palette
         # @return [Hash]
         def date_for(attributes, field)
           query = {}
-          if attributes[field.to_sym].is_a?(Range)
+          if attributes[field.to_sym].is_a?(Hash)
+            if attributes[field.to_sym].symbolize_keys.keys.include?(:gte)
+              query[:range][field][:gte] = attributes[field.to_sym][:gte]
+            end
+            if attributes[field.to_sym].symbolize_keys.keys.include?(:lte)
+              query[:range][field][:lte] = attributes[field.to_sym][:lte]
+            end
+          elsif attributes[field.to_sym].is_a?(Range)
             query = { range: { field => { gte: attributes[field.to_sym].first.beginning_of_day, lte: attributes[field.to_sym].last.end_of_day } } }
           elsif attributes[field.to_sym].is_a?(Date)
             query = { range: { field => { gte: attributes[field.to_sym].beginning_of_day, lte: attributes[field.to_sym].end_of_day } } }
