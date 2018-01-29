@@ -73,25 +73,28 @@ module Palette
         # for date query
         #
         # @param [Hash] attributes
+        # @param [Symbol] field
         # @return [Hash]
         def date_for(attributes, field)
           query = {}
-          if attributes[field.to_sym].is_a?(Hash)
+          attributes = attributes.symbolize_keys
+          field = field.to_sym
+          if attributes[field].is_a?(Hash)
             query = { range: { field => {} } }
-            if attributes[field.to_sym].symbolize_keys.keys.include?(:gte) && attributes[field.to_sym].symbolize_keys[:gte].present?
-              query[:range][field.to_sym][:gte] = attributes[field.to_sym][:gte]
+            if attributes[field].symbolize_keys.keys.include?(:gte) && attributes[field].symbolize_keys[:gte].present?
+              query[:range][field][:gte] = attributes[field][:gte]
             end
-            if attributes[field.to_sym].symbolize_keys.keys.include?(:lte) && attributes[field.to_sym].symbolize_keys[:lte].present?
-              query[:range][field.to_sym][:lte] = attributes[field.to_sym][:lte]
+            if attributes[field.to_sym].symbolize_keys.keys.include?(:lte) && attributes[field].symbolize_keys[:lte].present?
+              query[:range][field.to_sym][:lte] = attributes[field][:lte]
             end
             # @note make query empty if attributes[field.to_sym] doesn't have both gte and lte
-            query = {} if query[:range][field.to_sym].nil?
-          elsif attributes[field.to_sym].is_a?(Range)
-            query = { range: { field => { gte: attributes[field.to_sym].first.beginning_of_day, lte: attributes[field.to_sym].last.end_of_day } } }
-          elsif attributes[field.to_sym].is_a?(Date)
-            query = { range: { field => { gte: attributes[field.to_sym].beginning_of_day, lte: attributes[field.to_sym].end_of_day } } }
-          elsif attributes[field.to_sym].is_a?(ActiveSupport::TimeWithZone)
-            query = { range: { field => { gte: Date.parse(attributes[field.to_sym].to_s) } } }
+            query = {} if query[:range][field].nil?
+          elsif attributes[field].is_a?(Range)
+            query = { range: { field => { gte: attributes[field].first.beginning_of_day, lte: attributes[field].last.end_of_day } } }
+          elsif attributes[field].is_a?(Date)
+            query = { range: { field => { gte: attributes[field].beginning_of_day, lte: attributes[field].end_of_day } } }
+          elsif attributes[field].is_a?(ActiveSupport::TimeWithZone)
+            query = { range: { field => { gte: Date.parse(attributes[field].to_s) } } }
           end
           query
         end
