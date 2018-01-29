@@ -34,20 +34,30 @@ RSpec.describe Palette::ElasticSearch do
         name: 'Steve Jobs',
         age: 50,
         'phone_numbers.number': '+81 01-2345-6789',
-        created_at: Date.today
+        created_at: created_at
       }
     }
     context 'Hash object' do
-      let(:created_at) { { gte: Time.zone.yesterday } }
-      it_behaves_like 'AND query is generated as much as the number of attributes'
-      let(:created_at) { { lte: Time.zone.tomorrow } }
-      it_behaves_like 'AND query is generated as much as the number of attributes'
-      let(:created_at) { { gte: Time.zone.yesterday, lte: Time.zone.tomorrow } }
-      it_behaves_like 'AND query is generated as much as the number of attributes'
+      context 'only gte' do
+        let(:created_at) { { gte: Date.yesterday } }
+        it_behaves_like 'AND query is generated as much as the number of attributes'
+      end
+      context 'only lte' do
+        let(:created_at) { { lte: Date.tomorrow } }
+        it_behaves_like 'AND query is generated as much as the number of attributes'
+      end
+      context 'both gte and lte' do
+        let(:created_at) { { gte: Date.yesterday, lte: Date.tomorrow } }
+        it_behaves_like 'AND query is generated as much as the number of attributes'
+      end
+      context 'neither gte and lte' do
+        let(:created_at) { { gte: nil, lte: nil } }
+        it_behaves_like 'AND query is generated as much as the number of attributes'
+      end
     end
 
     context 'Range object' do
-      let(:created_at) { Time.zone.yesterday..Time.zone.now }
+      let(:created_at) { Date.yesterday..Date.today }
       it_behaves_like 'AND query is generated as much as the number of attributes'
     end
 
