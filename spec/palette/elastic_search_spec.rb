@@ -8,6 +8,13 @@ RSpec.describe Palette::ElasticSearch do
     expect(Palette::ElasticSearch::VERSION).not_to be nil
   end
 
+  shared_examples_for 'AND query is generated as much as the number of attributes' do
+    it do
+      res = ::Palette::ElasticSearch::QueryFactory.build([User], attributes)
+      expect(res[:query][:bool][:must].size).to eq(attributes.keys.size)
+    end
+  end
+
   describe 'build' do
     let(:attributes) {
       {
@@ -17,9 +24,46 @@ RSpec.describe Palette::ElasticSearch do
         created_at: Date.today
       }
     }
-    it 'AND query is generated as much as the number of attributes' do
-      res = ::Palette::ElasticSearch::QueryFactory.build([User], attributes)
-      expect(res[:query][:bool][:must].size).to eq(attributes.keys.size)
+    it_behaves_like 'AND query is generated as much as the number of attributes'
+  end
+
+  describe 'check date search query parameter' do
+    let(:created_at) { nil }
+    let(:attributes) {
+      {
+        name: 'Steve Jobs',
+        age: 50,
+        'phone_numbers.number': '+81 01-2345-6789',
+        created_at: created_at
+      }
+    }
+    context 'Hash object' do
+      context 'only gte' do
+        let(:created_at) { { gte: Date.yesterday } }
+        it_behaves_like 'AND query is generated as much as the number of attributes'
+      end
+      context 'only lte' do
+        let(:created_at) { { lte: Date.tomorrow } }
+        it_behaves_like 'AND query is generated as much as the number of attributes'
+      end
+      context 'both gte and lte' do
+        let(:created_at) { { "gte" => Date.yesterday, "lte" => Date.tomorrow } }
+        it_behaves_like 'AND query is generated as much as the number of attributes'
+      end
+      context 'neither gte and lte' do
+        let(:created_at) { { gte: nil, lte: nil } }
+        it_behaves_like 'AND query is generated as much as the number of attributes'
+      end
+    end
+
+    context 'Range object' do
+      let(:created_at) { Date.yesterday..Date.today }
+      it_behaves_like 'AND query is generated as much as the number of attributes'
+    end
+
+    context 'Date object' do
+      let(:created_at) { Date.today }
+      it_behaves_like 'AND query is generated as much as the number of attributes'
     end
   end
 
