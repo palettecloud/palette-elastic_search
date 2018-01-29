@@ -80,6 +80,7 @@ module Palette
           attributes = attributes.symbolize_keys
           field = field.to_sym
           if attributes[field].is_a?(Hash)
+            attributes[field] = attributes[field].symbolize_keys
             query = { range: { field => {} } }
             if attributes[field].symbolize_keys.keys.include?(:gte) && attributes[field].symbolize_keys[:gte].present?
               query[:range][field][:gte] = attributes[field][:gte]

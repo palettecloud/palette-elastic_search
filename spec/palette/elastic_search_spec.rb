@@ -47,7 +47,7 @@ RSpec.describe Palette::ElasticSearch do
         it_behaves_like 'AND query is generated as much as the number of attributes'
       end
       context 'both gte and lte' do
-        let(:created_at) { { gte: Date.yesterday, lte: Date.tomorrow } }
+        let(:created_at) { { "gte" => Date.yesterday, "lte" => Date.tomorrow } }
         it_behaves_like 'AND query is generated as much as the number of attributes'
       end
       context 'neither gte and lte' do
