@@ -43,16 +43,8 @@ namespace :palette do
           Rails.logger.error "ENV['CLASS'] is not found"
         else
           Rails.logger.info 'start deleting all elasticsearch indices'
-
-          models = ObjectSpace.each_object(Class).select{ |s| s.ancestors.include?(ActiveRecord::Base) && s.respond_to?(:__elasticsearch__) }
-          models.each do |model|
-            Rails.logger.info "update index of #{model.name}"
-            res = model.delete_elasticsearch_index!
-            Rails.logger.info res
-          end
-
+          Elasticsearch::Model.client.perform_request 'DELETE', '*'
           Rails.logger.info 'finished deleting all elasticsearch indices'
-
         end
 
       rescue => e

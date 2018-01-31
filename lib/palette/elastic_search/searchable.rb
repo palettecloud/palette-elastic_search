@@ -6,10 +6,8 @@ module Palette
 
         def update_elasticsearch_index!
           if current_indices.present?
-            # @note 既にindexが存在する場合はreindexを行う
             reindex!
           else
-            # @note indexが存在しない場合は、indexを作成してデータのimportを行う
             create_index!
           end
         end
@@ -22,26 +20,18 @@ module Palette
 
         private
 
-        # 先頭一致でindex_nameを含むindex一覧を取得する
         def current_indices
           self.__elasticsearch__.client.indices.get_aliases.keys.grep(/^#{self.index_name}/)
         end
 
-        # 新規のindexの名前を設定する
         def get_new_index_name
           "#{self.index_name}_#{Time.now.strftime("%Y%m%d_%H%M%S")}"
         end
 
-        # 稼働中のindexの名前を取得する
         def get_old_index_name
           current_indices.first
         end
 
-        # index作成からデータの同期までの一連の処理を実行
-        #
-        # 1. indexを作成
-        # 2. データをimport
-        # 3. aliasを設定する
         def create_index!
           new_index_name = get_new_index_name
 
@@ -54,9 +44,7 @@ module Palette
                                                          settings: self.settings.to_hash,
                                                          mappings: self.mappings.to_hash
                                                        }
-          # データをimport
           self.__elasticsearch__.import(index: new_index_name)
-          # aliasを設定する
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { add: { index: new_index_name, alias: self.index_name } }
@@ -64,35 +52,26 @@ module Palette
           }
         end
 
-        # mappingの切り替えの際の一連の処理を実行
-        #
-        # 1. 新たにindexを作成
-        # 2. 新たなindexにデータをimport
-        # 3. aliasの切り替え
-        # 4. 古いindexを削除
         def reindex!
           new_index_name = get_new_index_name
           old_index_name = get_old_index_name
 
           # deprecatedのanalyzerを使用していないか判定
           check_deprecated_analyzer
-          
+
           # indexを作成
           self.__elasticsearch__.client.indices.create index: new_index_name,
                                                        body: {
                                                          settings: self.settings.to_hash,
                                                          mappings: self.mappings.to_hash
                                                        }
-          # データをimport
           self.__elasticsearch__.import(index: new_index_name)
-          # aliasの切り替え
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { remove: { index: old_index_name, alias: self.index_name } },
               { add: { index: new_index_name, alias: self.index_name } }
             ]
           }
-          # 古いindexを削除する
           self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
         end
 
@@ -111,8 +90,14 @@ module Palette
         include ::Elasticsearch::Model
         include ::Elasticsearch::Model::Callbacks
 
-        # index_name self.table_name.underscore
-        index_name "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}"
+        # @note for soft delete
+        after_destroy :delete_document
+
+        def delete_document
+          self.__elasticsearch__.delete_document
+        end
+
+        index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
         document_type self.table_name.underscore.singularize
 
         settings index:

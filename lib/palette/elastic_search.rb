@@ -2,6 +2,7 @@ require 'palette/elastic_search/version'
 require 'active_support/concern'
 require 'elasticsearch/rails'
 require 'elasticsearch/model'
+require 'rails'
 
 module Palette
   module ElasticSearch
