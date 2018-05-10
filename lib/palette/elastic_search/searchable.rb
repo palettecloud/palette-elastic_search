@@ -71,9 +71,9 @@ module Palette
 
         # @note for soft delete
         after_destroy :delete_document
-        
+
         def delete_document
-          self.__elasticsearch__.delete_document
+          self.__elasticsearch__.delete_document rescue nil
         end
 
         index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
