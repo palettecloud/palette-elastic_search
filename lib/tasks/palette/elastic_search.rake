@@ -6,12 +6,7 @@ namespace :palette do
 
         if ENV['CLASS'].present? && (model = ENV['CLASS'].constantize).present?
           # update only specified model's index
-          loop do
-            final_record_updated_at = model.order(updated_at: :desc).first&.updated_at
-            res = model.update_elasticsearch_index!
-            # @note INDEX更新時に作成されたデータ(対象モデル)は同期されないため、最後のレコード更新時間がINDEX更新処理前後で変わっていた場合、更新処理をくり返す
-            break if final_record_updated_at == model.order(updated_at: :desc).first&.updated_at
-          end
+          res = model.update_elasticsearch_index!
           Rails.logger.info res
         elsif ENV['CLASS'].present? && (model = ENV['CLASS'].constantize).blank?
           Rails.logger.error "ENV['CLASS'] is not found"
@@ -23,12 +18,7 @@ namespace :palette do
           models = ObjectSpace.each_object(Class).select{ |s| s.ancestors.include?(ActiveRecord::Base) && s.respond_to?(:__elasticsearch__) }
           models.each do |model|
             Rails.logger.info "update index of #{model.name}"
-            loop do
-              final_record_updated_at = model.order(updated_at: :desc).first&.updated_at
-              res = model.update_elasticsearch_index!
-              # @note INDEX更新時に作成されたデータ(対象モデル)は同期されないため、最後のレコード更新時間がINDEX更新処理前後で変わっていた場合、更新処理をくり返す
-              break if final_record_updated_at == model.order(updated_at: :desc).first&.updated_at
-            end
+            res = model.update_elasticsearch_index!
             Rails.logger.info res
           end
 

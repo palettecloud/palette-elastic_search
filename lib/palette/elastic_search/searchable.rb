@@ -37,7 +37,24 @@ module Palette
                                                          settings: self.settings.to_hash,
                                                          mappings: self.mappings.to_hash
                                                        }
+
+          present_start_index_time = Time.current
           self.__elasticsearch__.import(index: new_index_name)
+          present_end_index_time = Time.current
+
+          # @note for new records generated while indexing
+          unless self.where(updated_at: present_start_index_time..present_end_index_time).empty?
+            loop do
+              pre_start_index_time = present_start_index_time
+              pre_end_index_time = present_end_index_time
+              present_start_index_time = Time.current
+              # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/lib/elasticsearch/model/importing.rb
+              self.__elasticsearch__.import(index: new_index_name) query: -> { where(updated_at: pre_start_index_time..pre_end_index_time) }
+              present_end_index_time = Time.current
+              break if self.where(updated_at: present_start_index_time..present_end_index_time).empty?
+            end
+          end
+
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { add: { index: new_index_name, alias: self.index_name } }
@@ -71,7 +88,7 @@ module Palette
 
         # @note for soft delete
         after_destroy :delete_document
-        
+
         def delete_document
           self.__elasticsearch__.delete_document
         end
