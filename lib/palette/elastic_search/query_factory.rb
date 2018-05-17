@@ -47,7 +47,7 @@ module Palette
         def query_partial_for(query, field)
           hash = { bool: { must: [] } }
           query.sub(/\A[[:space:]]+/, '').split(/[[:blank:]]+/).each do |q|
-            hash[:bool][:must] << { simple_query_string: { query: q, fields: [field], analyzer: 'bigram' } }
+            hash[:bool][:must] << { simple_query_string: { query: q, fields: [field], analyzer: 'ngram' } }
           end
           hash
         end

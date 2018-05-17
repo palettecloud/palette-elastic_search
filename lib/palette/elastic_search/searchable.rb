@@ -2,6 +2,8 @@ module Palette
   module ElasticSearch
     module Searchable
       module ClassMethods
+        deprecated_analyzer = [:bigram].freeze
+
         def update_elasticsearch_index!
           if current_indices.present?
             reindex!
@@ -31,6 +33,7 @@ module Palette
         end
 
         def indexing(new_index_name)
+          check_deprecated_analyzer
           self.__elasticsearch__.client.indices.create index: new_index_name,
                                                        body: {
                                                          settings: self.settings.to_hash,
@@ -73,6 +76,15 @@ module Palette
           }
           self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
         end
+
+        def check_deprecated_analyzer
+          self.mappings.to_hash[self.model_name.param_key.to_sym][:properties].keys.each do |key|
+            case self.mappings.to_hash[self.model_name.param_key.to_sym][:properties][key][:analyzer]
+            when 'bigram'
+              Rails.logger.warn 'bigram is deprecated. use ngram instead'
+            end
+          end
+        end
       end
 
       extend ::ActiveSupport::Concern
@@ -113,6 +125,12 @@ module Palette
                            min_gram: 2,
                            max_gram: 2,
                            token_chars: %W(letter digit)
+                         },
+                         n_gram: {
+                           type: 'ngram',
+                           min_gram: 1,
+                           max_gram: 2,
+                           token_chars: %W(letter digit)
                          }
                        },
                        analyzer: {
@@ -136,8 +154,12 @@ module Palette
                            tokenizer: 'bi_gram',
                            char_filter: %W(my_icu_normalizer)
                          },
+                         ngram: {
+                           tokenizer: 'n_gram',
+                           char_filter: %W(my_icu_normalizer)
+                         },
                          katakana: {
-                           tokenizer: 'bi_gram',
+                           tokenizer: 'n_gram',
                            char_filter: %W(my_icu_normalizer)
                          }
                        },
