@@ -38,20 +38,20 @@ module Palette
                                                          mappings: self.mappings.to_hash
                                                        }
 
-          present_start_index_time = Time.current
+          process_started_at = Time.current
           self.__elasticsearch__.import(index: new_index_name)
-          present_end_index_time = Time.current
+          process_end_at = Time.current
 
           # @note for new records generated while indexing
-          unless self.where(updated_at: present_start_index_time..present_end_index_time).empty?
+          unless self.where(updated_at: process_started_at..process_end_at).empty?
             loop do
-              pre_start_index_time = present_start_index_time
-              pre_end_index_time = present_end_index_time
-              present_start_index_time = Time.current
+              previous_started_at = process_started_at
+              previous_end_at = process_end_at
+              process_started_at = Time.current
               # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/lib/elasticsearch/model/importing.rb
-              self.__elasticsearch__.import(index: new_index_name) query: -> { where(updated_at: pre_start_index_time..pre_end_index_time) }
-              present_end_index_time = Time.current
-              break if self.where(updated_at: present_start_index_time..present_end_index_time).empty?
+              self.__elasticsearch__.import(index: new_index_name) query: -> { where(updated_at: previous_started_at..previous_end_at) }
+              process_end_at = Time.current
+              break if self.where(updated_at: process_started_at..process_end_at).empty?
             end
           end
 
@@ -70,7 +70,24 @@ module Palette
                                                          settings: self.settings.to_hash,
                                                          mappings: self.mappings.to_hash
                                                        }
+
+          process_started_at = Time.current
           self.__elasticsearch__.import(index: new_index_name)
+          process_end_at = Time.current
+
+          # @note for new records generated while indexing
+          unless self.where(updated_at: process_started_at..process_end_at).empty?
+            loop do
+              previous_started_at = process_started_at
+              previous_end_at = process_end_at
+              process_started_at = Time.current
+              # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/lib/elasticsearch/model/importing.rb
+              self.__elasticsearch__.import(index: new_index_name) query: -> { where(updated_at: previous_started_at..previous_end_at) }
+              process_end_at = Time.current
+              break if self.where(updated_at: process_started_at..process_end_at).empty?
+            end
+          end
+
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { remove: { index: old_index_name, alias: self.index_name } },
