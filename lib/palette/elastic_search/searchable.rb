@@ -41,16 +41,13 @@ module Palette
           process_end_at = Time.current
 
           # @note for new records generated while indexing
-          unless self.where(updated_at: process_start_at..process_end_at).empty?
-            loop do
-              previous_start_at = process_start_at
-              previous_end_at = process_end_at
-              process_start_at = Time.current
-              # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/lib/elasticsearch/model/importing.rb
-              self.__elasticsearch__.import(index: new_index_name, query: -> { where(updated_at: previous_start_at..previous_end_at) })
-              process_end_at = Time.current
-              break if self.where(updated_at: process_start_at..process_end_at).empty?
-            end
+          loop do
+            break if self.where(updated_at: process_start_at..process_end_at).empty?
+            previous_start_at = process_start_at
+            process_start_at = Time.current
+            # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/lib/elasticsearch/model/importing.rb
+            self.__elasticsearch__.import(index: new_index_name, query: -> { where(updated_at: previous_start_at..Time.current) })
+            process_end_at = Time.current
           end
         end
 
