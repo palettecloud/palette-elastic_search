@@ -32,19 +32,31 @@ module Palette
           current_indices.first
         end
 
-        def create_index!
-          new_index_name = get_new_index_name
-
-          # deprecatedのanalyzerを使用していないか判定
+        def indexing(new_index_name)
           check_deprecated_analyzer
-
-          # indexを作成する
           self.__elasticsearch__.client.indices.create index: new_index_name,
                                                        body: {
                                                          settings: self.settings.to_hash,
                                                          mappings: self.mappings.to_hash
                                                        }
+          process_start_at = Time.current
           self.__elasticsearch__.import(index: new_index_name)
+          process_end_at = Time.current
+
+          # @note for new records generated while indexing
+          loop do
+            break if self.where(updated_at: process_start_at..process_end_at).empty?
+            previous_start_at = process_start_at
+            process_start_at = Time.current
+            # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/lib/elasticsearch/model/importing.rb
+            self.__elasticsearch__.import(index: new_index_name, query: -> { where(updated_at: previous_start_at..Time.current) })
+            process_end_at = Time.current
+          end
+        end
+
+        def create_index!
+          new_index_name = get_new_index_name
+          indexing(new_index_name)
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { add: { index: new_index_name, alias: self.index_name } }
@@ -55,17 +67,7 @@ module Palette
         def reindex!
           new_index_name = get_new_index_name
           old_index_name = get_old_index_name
-
-          # deprecatedのanalyzerを使用していないか判定
-          check_deprecated_analyzer
-
-          # indexを作成
-          self.__elasticsearch__.client.indices.create index: new_index_name,
-                                                       body: {
-                                                         settings: self.settings.to_hash,
-                                                         mappings: self.mappings.to_hash
-                                                       }
-          self.__elasticsearch__.import(index: new_index_name)
+          indexing(new_index_name)
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { remove: { index: old_index_name, alias: self.index_name } },
