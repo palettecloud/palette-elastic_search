@@ -4,11 +4,11 @@ module Palette
       module ClassMethods
         deprecated_analyzer = [:bigram].freeze
 
-        def update_elasticsearch_index!
+        def update_elasticsearch_index!(options={})
           if current_indices.present?
-            reindex!
+            reindex!(options)
           else
-            create_index!
+            create_index!(options)
           end
         end
 
@@ -32,7 +32,7 @@ module Palette
           current_indices.first
         end
 
-        def indexing(new_index_name)
+        def indexing(new_index_name, options={})
           check_deprecated_analyzer
           self.__elasticsearch__.client.indices.create index: new_index_name,
                                                        body: {
@@ -40,7 +40,7 @@ module Palette
                                                          mappings: self.mappings.to_hash
                                                        }
           process_start_at = Time.current
-          self.__elasticsearch__.import(index: new_index_name)
+          self.__elasticsearch__.import(index: new_index_name, query: options[:query])
           process_end_at = Time.current
 
           # @note for new records generated while indexing
@@ -54,9 +54,9 @@ module Palette
           end
         end
 
-        def create_index!
+        def create_index!(options={})
           new_index_name = get_new_index_name
-          indexing(new_index_name)
+          indexing(new_index_name, options)
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { add: { index: new_index_name, alias: self.index_name } }
@@ -64,10 +64,10 @@ module Palette
           }
         end
 
-        def reindex!
+        def reindex!(options={})
           new_index_name = get_new_index_name
           old_index_name = get_old_index_name
-          indexing(new_index_name)
+          indexing(new_index_name, options)
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { remove: { index: old_index_name, alias: self.index_name } },
