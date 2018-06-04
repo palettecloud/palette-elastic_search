@@ -164,7 +164,7 @@ module Palette
                          },
                          postcode_analyzer: {
                            type: 'custom',
-                           tokenizer: 'kuromoji_tokenizer',
+                           tokenizer: 'keyword',
                            char_filter: %W(my_icu_normalizer hyphen_normalizer postcode_normalizer)
                          },
                        },
