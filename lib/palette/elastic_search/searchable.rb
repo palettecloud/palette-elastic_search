@@ -161,7 +161,12 @@ module Palette
                          katakana: {
                            tokenizer: 'n_gram',
                            char_filter: %W(my_icu_normalizer)
-                         }
+                         },
+                         postcode_analyzer: {
+                           type: 'custom',
+                           tokenizer: 'keyword',
+                           char_filter: %W(my_icu_normalizer hyphen_normalizer postcode_normalizer)
+                         },
                        },
                        filter: {
                          katakana_readingform: {
@@ -191,7 +196,17 @@ module Palette
                            type: 'pattern_replace',
                            pattern: '[株式会社|会社]',
                            replacement: ''
-                         }
+                         },
+                         postcode_normalizer: {
+                           type: 'pattern_replace',
+                           pattern: '(\d{3})(\d{4})',
+                           replacement: '$1-$2'
+                         },
+                         hyphen_normalizer: {
+                           type: 'pattern_replace',
+                           pattern: '[\x{30FC}\x{2010}-\x{2015}\x{2212}\x{FF70}-]',
+                           replacement: '-'
+                         },
                        }
                      }
                    }
