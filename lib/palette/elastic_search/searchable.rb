@@ -161,7 +161,12 @@ module Palette
                          katakana: {
                            tokenizer: 'n_gram',
                            char_filter: %W(my_icu_normalizer)
-                         }
+                         },
+                         number_code_analyzer: {
+                           type: 'custom',
+                           tokenizer: 'keyword',
+                           char_filter: %W(my_icu_normalizer hyphen_trimmer)
+                         },
                        },
                        filter: {
                          katakana_readingform: {
@@ -190,6 +195,11 @@ module Palette
                          company_name_trimmer: {
                            type: 'pattern_replace',
                            pattern: '[株式会社|会社]',
+                           replacement: ''
+                         },
+                         hyphen_trimmer: {
+                           type: 'pattern_replace',
+                           pattern: '[\x{30FC}\x{2010}-\x{2015}\x{2212}\x{FF70}-]',
                            replacement: ''
                          }
                        }
