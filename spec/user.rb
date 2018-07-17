@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
     mapping _source: { enabled: true }, _all: { enabled: true }, dynamic: false do
       indexes :name, type: 'string', analyzer: 'bigram'
       indexes :sex, analyzer: 'keyword_analyzer'
-      indexes :age, analyzer: 'keyword_analyzer'
+      indexes :age, type: 'integer'
       indexes :address, type: 'string', analyzer: 'bigram'
       indexes :phone_numbers, type: 'nested' do
         indexes :number, analyzer: 'keyword_analyzer'
