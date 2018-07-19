@@ -159,7 +159,7 @@ module Palette
             end
 
             case analyzer_by(index, field, should_nested).to_s
-            when PARTIAL_MATCH_ANALYZERS
+            when *PARTIAL_MATCH_ANALYZERS
               return { pattern: 'partial_match' }
             when 'autocomplete_analyzer'
               return { pattern: 'prefix_match' }
