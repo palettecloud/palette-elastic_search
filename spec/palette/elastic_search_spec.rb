@@ -19,6 +19,7 @@ RSpec.describe Palette::ElasticSearch do
     let(:attributes) {
       {
         name: 'Steve Jobs',
+        name_prefix: 'Steve Jobs',
         age: 50,
         'phone_numbers.number': '+81 01-2345-6789',
         created_at: Date.today
@@ -32,6 +33,7 @@ RSpec.describe Palette::ElasticSearch do
     let(:attributes) {
       {
         name: 'Steve Jobs',
+        name_prefix: 'Steve Jobs',
         age: 50,
         'phone_numbers.number': '+81 01-2345-6789',
         created_at: created_at
@@ -138,6 +140,14 @@ RSpec.describe Palette::ElasticSearch do
       it 'full_match is returned' do
         res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
         expect(res[:pattern]).to eq('full_match_with_analyzer')
+      end
+    end
+
+    context 'prefix_match' do
+      let(:field) { :name_prefix }
+      it 'prefix_match is returned' do
+        res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
+        expect(res[:pattern]).to eq('prefix_match')
       end
     end
   end
