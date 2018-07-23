@@ -8,6 +8,80 @@ RSpec.describe Palette::ElasticSearch do
     expect(Palette::ElasticSearch::VERSION).not_to be nil
   end
 
+  describe 'json' do
+    let(:attributes) do
+      {
+        name: 'Steve Jobs',
+        name_prefix: 'Steve Jobs',
+        age: 50,
+        'phone_numbers.number': '+81 01-2345-6789',
+        created_at: Date.parse('2018-1-1')
+      }
+    end
+
+    let(:result) do
+      {
+        query: {
+          bool: {
+            must: [
+              {
+                bool: {
+                  must: [
+                   { simple_query_string: { query: "Steve", fields: [:name], analyzer: "ngram"} },
+                   { simple_query_string: { query: "Jobs",  fields: [:name], analyzer: "ngram"} }
+                  ]
+                }
+              },
+              {
+                bool: {
+                  must: [
+                    { match: { name_prefix: { query: "Steve Jobs", analyzer: "standard" } } }
+                  ]
+                }
+              },
+              {
+                bool: {
+                  must: [
+                    { match: { age: { query: "50", analyzer: :keyword_analyzer } } }
+                  ]
+                }
+              },
+              {
+                nested: {
+                  path: "phone_numbers",
+                  query: {
+                    bool: {
+                      must: [
+                        { match: { "phone_numbers.number": { query: "+81 01-2345-6789", analyzer: :keyword_analyzer } } }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                range: {
+                  created_at: {
+                    gte: Time.parse("2018-01-01 00:00:00.000000000 +0900"),
+                    lte: Time.parse("2018-01-01 23:59:59.999999999 +0900")
+                  }
+                }
+              }
+            ],
+            filter: {}
+          }
+        }
+      }
+    end
+
+    subject do
+      ::Palette::ElasticSearch::QueryFactory.build([User], attributes)
+    end
+
+    it 'jsonが一致すること' do
+      expect(subject).to eq result
+    end
+  end
+
   shared_examples_for 'AND query is generated as much as the number of attributes' do
     it do
       res = ::Palette::ElasticSearch::QueryFactory.build([User], attributes)
