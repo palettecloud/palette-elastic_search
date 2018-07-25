@@ -24,6 +24,7 @@ class User < ActiveRecord::Base
   settings do
     mapping _source: { enabled: true }, _all: { enabled: true }, dynamic: false do
       indexes :name, type: 'string', analyzer: 'bigram'
+      indexes :name_prefix, analyzer: 'autocomplete_analyzer'
       indexes :sex, analyzer: 'keyword_analyzer'
       indexes :age, analyzer: 'keyword_analyzer'
       indexes :address, type: 'string', analyzer: 'bigram'
