@@ -164,7 +164,7 @@ module Palette
                          },
                          autocomplete_analyzer: {
                            type: 'custom',
-                           tokenizer: 'standard',
+                           tokenizer: 'whitespace',
                            filter: %W(lowercase autocomplete_filter)
                          }
                        },
