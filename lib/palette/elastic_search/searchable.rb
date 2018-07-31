@@ -2,13 +2,13 @@ module Palette
   module ElasticSearch
     module Searchable
       module ClassMethods
-        def update_elasticsearch_index!
+        deprecated_analyzer = [:bigram].freeze
+
+        def update_elasticsearch_index!(options={})
           if current_indices.present?
-            # @note 既にindexが存在する場合はreindexを行う
-            reindex!
+            reindex!(options)
           else
-            # @note indexが存在しない場合は、indexを作成してデータのimportを行う
-            create_index!
+            create_index!(options)
           end
         end
 
@@ -20,37 +20,43 @@ module Palette
 
         private
 
-        # 先頭一致でindex_nameを含むindex一覧を取得する
         def current_indices
           self.__elasticsearch__.client.indices.get_aliases.keys.grep(/^#{self.index_name}/)
         end
 
-        # 新規のindexの名前を設定する
         def get_new_index_name
           "#{self.index_name}_#{Time.now.strftime("%Y%m%d_%H%M%S")}"
         end
 
-        # 稼働中のindexの名前を取得する
         def get_old_index_name
           current_indices.first
         end
 
-        # index作成からデータの同期までの一連の処理を実行
-        #
-        # 1. indexを作成
-        # 2. データをimport
-        # 3. aliasを設定する
-        def create_index!
-          new_index_name = get_new_index_name
-          # indexを作成する
+        def indexing(new_index_name, options={})
+          check_deprecated_analyzer
           self.__elasticsearch__.client.indices.create index: new_index_name,
                                                        body: {
                                                          settings: self.settings.to_hash,
                                                          mappings: self.mappings.to_hash
                                                        }
-          # データをimport
-          self.__elasticsearch__.import(index: new_index_name)
-          # aliasを設定する
+          process_start_at = Time.current
+          self.__elasticsearch__.import(index: new_index_name, query: options[:query])
+          process_end_at = Time.current
+
+          # @note for new records generated while indexing
+          loop do
+            break if self.where(updated_at: process_start_at..process_end_at).empty?
+            previous_start_at = process_start_at
+            process_start_at = Time.current
+            # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/lib/elasticsearch/model/importing.rb
+            self.__elasticsearch__.import(index: new_index_name, query: -> { where(updated_at: previous_start_at..Time.current) })
+            process_end_at = Time.current
+          end
+        end
+
+        def create_index!(options={})
+          new_index_name = get_new_index_name
+          indexing(new_index_name, options)
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { add: { index: new_index_name, alias: self.index_name } }
@@ -58,34 +64,27 @@ module Palette
           }
         end
 
-        # mappingの切り替えの際の一連の処理を実行
-        #
-        # 1. 新たにindexを作成
-        # 2. 新たなindexにデータをimport
-        # 3. aliasの切り替え
-        # 4. 古いindexを削除
-        def reindex!
+        def reindex!(options={})
           new_index_name = get_new_index_name
           old_index_name = get_old_index_name
-          # indexを作成
-          self.__elasticsearch__.client.indices.create index: new_index_name,
-                                                       body: {
-                                                         settings: self.settings.to_hash,
-                                                         mappings: self.mappings.to_hash
-                                                       }
-          # データをimport
-          self.__elasticsearch__.import(index: new_index_name)
-          # aliasの切り替え
+          indexing(new_index_name, options)
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [
               { remove: { index: old_index_name, alias: self.index_name } },
               { add: { index: new_index_name, alias: self.index_name } }
             ]
           }
-          # 古いindexを削除する
           self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
         end
 
+        def check_deprecated_analyzer
+          self.mappings.to_hash[self.model_name.param_key.to_sym][:properties].keys.each do |key|
+            case self.mappings.to_hash[self.model_name.param_key.to_sym][:properties][key][:analyzer]
+            when 'bigram'
+              Rails.logger.warn 'bigram is deprecated. use ngram instead'
+            end
+          end
+        end
       end
 
       extend ::ActiveSupport::Concern
@@ -93,8 +92,14 @@ module Palette
         include ::Elasticsearch::Model
         include ::Elasticsearch::Model::Callbacks
 
-        # index_name self.table_name.underscore
-        index_name "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}"
+        # @note for soft delete
+        after_destroy :delete_document
+
+        def delete_document
+          self.__elasticsearch__.delete_document
+        end
+
+        index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
         document_type self.table_name.underscore.singularize
 
         settings index:
@@ -120,6 +125,12 @@ module Palette
                            min_gram: 2,
                            max_gram: 2,
                            token_chars: %W(letter digit)
+                         },
+                         n_gram: {
+                           type: 'ngram',
+                           min_gram: 1,
+                           max_gram: 2,
+                           token_chars: %W(letter digit)
                          }
                        },
                        analyzer: {
@@ -143,9 +154,18 @@ module Palette
                            tokenizer: 'bi_gram',
                            char_filter: %W(my_icu_normalizer)
                          },
-                         katakana: {
-                           tokenizer: 'bi_gram',
+                         ngram: {
+                           tokenizer: 'n_gram',
                            char_filter: %W(my_icu_normalizer)
+                         },
+                         katakana: {
+                           tokenizer: 'n_gram',
+                           char_filter: %W(my_icu_normalizer)
+                         },
+                         autocomplete_analyzer: {
+                           type: 'custom',
+                           tokenizer: 'whitespace',
+                           filter: %W(lowercase autocomplete_filter)
                          }
                        },
                        filter: {
@@ -164,7 +184,12 @@ module Palette
                          greek_lowercase_filter: {
                            type:     'lowercase',
                            language: 'greek',
-                         }
+                         },
+                         autocomplete_filter: {
+                           type: 'edge_ngram',
+                           min_gram: 1,
+                           max_gram: 100,
+                         },
                        },
                        char_filter: {
                          my_icu_normalizer: {
