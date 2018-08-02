@@ -35,7 +35,7 @@ RSpec.describe Palette::ElasticSearch do
               {
                 bool: {
                   must: [
-                    { match: { name_prefix: { query: "Steve Jobs", analyzer: "standard" } } }
+                    { match: { name_prefix: { query: "Steve Jobs", analyzer: "whitespace" } } }
                   ]
                 }
               },
