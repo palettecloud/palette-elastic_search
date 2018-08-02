@@ -26,7 +26,7 @@ class User < ActiveRecord::Base
       indexes :name, type: 'string', analyzer: 'bigram'
       indexes :name_prefix, analyzer: 'autocomplete_analyzer'
       indexes :sex, analyzer: 'keyword_analyzer'
-      indexes :age, analyzer: 'keyword_analyzer'
+      indexes :age, type: 'integer'
       indexes :address, type: 'string', analyzer: 'bigram'
       indexes :phone_numbers, type: 'nested' do
         indexes :number, analyzer: 'keyword_analyzer'

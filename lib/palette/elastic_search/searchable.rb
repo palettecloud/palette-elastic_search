@@ -2,11 +2,16 @@ module Palette
   module ElasticSearch
     module Searchable
       module ClassMethods
-        deprecated_analyzer = [:bigram].freeze
 
         def update_elasticsearch_index!(options={})
           if current_indices.present?
-            reindex!(options)
+            if current_indices.include?(self.index_name)
+              # @note when default index exists, delete default index and create new index with timestamp-suffix
+              self.__elasticsearch__.client.indices.delete index: self.index_name rescue nil
+              create_index!(options)
+            else
+              reindex!(options)
+            end
           else
             create_index!(options)
           end
@@ -26,10 +31,6 @@ module Palette
 
         def get_new_index_name
           "#{self.index_name}_#{Time.now.strftime("%Y%m%d_%H%M%S")}"
-        end
-
-        def get_old_index_name
-          current_indices.first
         end
 
         def indexing(new_index_name, options={})
@@ -66,7 +67,7 @@ module Palette
 
         def reindex!(options={})
           new_index_name = get_new_index_name
-          old_index_name = get_old_index_name
+          old_index_name = current_indices.sort.last
           indexing(new_index_name, options)
           self.__elasticsearch__.client.indices.update_aliases body: {
             actions: [

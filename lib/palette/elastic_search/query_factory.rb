@@ -23,6 +23,8 @@ module Palette
                 query_partial = query_partial_for((attributes[attr]).to_s, field)
               when :full_match_with_analyzer
                 query_partial = full_match_for((attributes[attr]).to_s, field, query_pattern[:analyzer])
+              when :integer
+                query_partial = integer_for(attributes, field)
               when :prefix_match
                 query_partial = prefix_match_for((attributes[attr]).to_s, field)
               when :geo_point
@@ -70,7 +72,7 @@ module Palette
         # @param [String] field
         # @return [Hash]
         def prefix_match_for(query, field)
-          { bool: { must: [{ match: { field => { query: query, analyzer: 'standard' }}}]} }
+          { bool: { must: [{ match: { field => { query: query, analyzer: 'whitespace' }}}]} }
         end
 
         # for geo_point query
@@ -114,6 +116,18 @@ module Palette
               return {}
           end
         end
+        
+
+        # for integer query
+        #
+        # @params [Object] attributes
+        # @params [Symbol] field
+        # @return [Hash]
+        def integer_for(attributes, field)
+          attributes = attributes.symbolize_keys
+          field = field.to_sym
+          return { term: { field => attributes[field] } }
+        end
 
         # for nested query
         #
@@ -153,6 +167,9 @@ module Palette
           @mappings_hashes.keys.each do |index|
             if type_by(index, field, should_nested).present? && type_by(index, field, should_nested) == :date
               return { pattern: 'date' }
+            end
+            if type_by(index, field, should_nested).present? && type_by(index, field, should_nested) == :integer
+              return { pattern: 'integer'}
             end
             if type_by(index, field, should_nested).present? && type_by(index, field, should_nested) == :nested
               return { pattern: 'nested' }
