@@ -70,7 +70,7 @@ module Palette
         # @param [String] field
         # @return [Hash]
         def prefix_match_for(query, field)
-          { bool: { must: [{ match: { field => { query: query, analyzer: 'standard' }}}]} }
+          { bool: { must: [{ match: { field => { query: query, analyzer: 'whitespace' }}}]} }
         end
 
         # for geo_point query
