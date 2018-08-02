@@ -25,6 +25,8 @@ module Palette
                 query_partial = full_match_for((attributes[attr]).to_s, field, query_pattern[:analyzer])
               when :integer
                 query_partial = integer_for(attributes, field)
+              when :prefix_match
+                query_partial = prefix_match_for((attributes[attr]).to_s, field)
               when :geo_point
                 geo_point_query = geo_point_for(attributes)
               when :date
@@ -62,6 +64,15 @@ module Palette
         # @return [Hash]
         def full_match_for(query, field, analyzer)
           { bool: { must: [{ match: { field => { query: query, analyzer: analyzer } } }] } }
+        end
+
+        # 前方一致のクエリを生成
+        #
+        # @param [String] query
+        # @param [String] field
+        # @return [Hash]
+        def prefix_match_for(query, field)
+          { bool: { must: [{ match: { field => { query: query, analyzer: 'standard' }}}]} }
         end
 
         # for geo_point query
@@ -164,8 +175,11 @@ module Palette
               return { pattern: 'nested' }
             end
 
-            if PARTIAL_MATCH_ANALYZERS.include?(analyzer_by(index, field, should_nested).to_s)
+            case analyzer_by(index, field, should_nested).to_s
+            when *PARTIAL_MATCH_ANALYZERS
               return { pattern: 'partial_match' }
+            when 'autocomplete_analyzer'
+              return { pattern: 'prefix_match' }
             else
               return { pattern: 'full_match_with_analyzer', analyzer: analyzer_by(index, field, should_nested) }
             end

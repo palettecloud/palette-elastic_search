@@ -161,6 +161,11 @@ module Palette
                          katakana: {
                            tokenizer: 'n_gram',
                            char_filter: %W(my_icu_normalizer)
+                         },
+                         autocomplete_analyzer: {
+                           type: 'custom',
+                           tokenizer: 'standard',
+                           filter: %W(lowercase autocomplete_filter)
                          }
                        },
                        filter: {
@@ -179,7 +184,12 @@ module Palette
                          greek_lowercase_filter: {
                            type:     'lowercase',
                            language: 'greek',
-                         }
+                         },
+                         autocomplete_filter: {
+                           type: 'edge_ngram',
+                           min_gram: 1,
+                           max_gram: 100,
+                         },
                        },
                        char_filter: {
                          my_icu_normalizer: {
