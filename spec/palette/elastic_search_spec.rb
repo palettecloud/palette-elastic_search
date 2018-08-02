@@ -209,11 +209,11 @@ RSpec.describe Palette::ElasticSearch do
       end
     end
 
-    context 'full_match' do
+    context 'integer' do
       let(:field) { :age }
-      it 'full_match is returned' do
+      it 'integer is returned' do
         res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
-        expect(res[:pattern]).to eq('full_match_with_analyzer')
+        expect(res[:pattern]).to eq('integer')
       end
     end
 
