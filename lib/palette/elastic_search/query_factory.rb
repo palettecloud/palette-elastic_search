@@ -20,7 +20,7 @@ module Palette
 
             case query_pattern[:pattern].to_sym
               when :partial_match
-                query_partial = query_partial_for((attributes[attr]).to_s, field)
+                query_partial = query_partial_for((attributes[attr]).to_s, field, query_pattern[:analyzer])
               when :full_match_with_analyzer
                 query_partial = full_match_for((attributes[attr]).to_s, field, query_pattern[:analyzer])
               when :integer
@@ -48,10 +48,10 @@ module Palette
         # @param [String] query
         # @param [String] field
         # @return [Hash]
-        def query_partial_for(query, field)
+        def query_partial_for(query, field, analyzer)
           hash = { bool: { must: [] } }
           query.sub(/\A[[:space:]]+/, '').split(/[[:blank:]]+/).each do |q|
-            hash[:bool][:must] << { simple_query_string: { query: q, fields: [field], analyzer: 'ngram' } }
+            hash[:bool][:must] << { simple_query_string: { query: q, fields: [field], analyzer: analyzer } }
           end
           hash
         end
