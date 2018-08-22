@@ -17,7 +17,6 @@ module Palette
 
             query_partial = {}
             query_pattern = get_query_pattern(field.to_sym)
-            exit
             case query_pattern[:pattern].to_sym
               when :partial_match
                 query_partial = query_partial_for((attributes[attr]).to_s, field, query_pattern[:analyzer].to_sym)
