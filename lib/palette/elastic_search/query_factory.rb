@@ -17,7 +17,7 @@ module Palette
 
             query_partial = {}
             query_pattern = get_query_pattern(field.to_sym)
-
+            exit
             case query_pattern[:pattern].to_sym
               when :partial_match
                 query_partial = query_partial_for((attributes[attr]).to_s, field, query_pattern[:analyzer].to_sym)
@@ -177,7 +177,7 @@ module Palette
 
             case analyzer_by(index, field, should_nested).to_s
             when *PARTIAL_MATCH_ANALYZERS
-              return { pattern: 'partial_match' }
+              return { pattern: 'partial_match', analyzer: analyzer_by(index, field, should_nested) }
             when 'autocomplete_analyzer'
               return { pattern: 'prefix_match' }
             else
