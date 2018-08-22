@@ -20,9 +20,9 @@ module Palette
 
             case query_pattern[:pattern].to_sym
               when :partial_match
-                query_partial = query_partial_for((attributes[attr]).to_s, field, query_pattern[:analyzer])
+                query_partial = query_partial_for((attributes[attr]).to_s, field, query_pattern[:analyzer].to_sym)
               when :full_match_with_analyzer
-                query_partial = full_match_for((attributes[attr]).to_s, field, query_pattern[:analyzer])
+                query_partial = full_match_for((attributes[attr]).to_s, field, query_pattern[:analyzer].to_sym)
               when :integer
                 query_partial = integer_for(attributes, field)
               when :prefix_match
