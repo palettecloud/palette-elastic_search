@@ -37,7 +37,11 @@ module Palette
             query_array << query_partial if query_partial.present?
           end
 
-          { query: { bool: { must: query_array, filter: geo_point_query } } }
+          if geo_point_query.present?
+            { query: { bool: { must: query_array, filter: geo_point_query } } }
+          else
+            { query: { bool: { must: query_array} } }
+          end
         end
 
         private
