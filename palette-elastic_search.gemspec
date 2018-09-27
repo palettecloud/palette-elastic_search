@@ -31,8 +31,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'activesupport'
-  spec.add_dependency 'elasticsearch-rails'
-  spec.add_dependency 'elasticsearch-model'
+  spec.add_dependency 'elasticsearch-rails', '~> 5.0'
+  spec.add_dependency 'elasticsearch-model', '~> 5.0'
 
   spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'
