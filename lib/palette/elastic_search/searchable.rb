@@ -90,13 +90,25 @@ module Palette
 
       extend ::ActiveSupport::Concern
       included do
-        cattr_accessor :skip_elasticsearch_callbacks
-        
+
         include ::Elasticsearch::Model
-        include ::Elasticsearch::Model::Callbacks unless skip_elasticsearch_callbacks
 
         index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
         document_type self.table_name.underscore.singularize
+
+        cattr_accessor :skip_elasticsearch_callbacks
+
+        after_commit on: [:create] do
+          __elasticsearch__.index_document unless skip_elasticsearch_callbacks
+        end
+
+        after_commit on: [:update] do
+          __elasticsearch__.update_document unless skip_elasticsearch_callbacks
+        end
+
+        after_commit on: [:destroy] do
+          __elasticsearch__.delete_document unless skip_elasticsearch_callbacks
+        end
 
         settings index:
                    {
