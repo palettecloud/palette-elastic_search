@@ -123,7 +123,7 @@ module Palette
                          n_gram: {
                            type: 'ngram',
                            min_gram: 1,
-                           max_gram: 2,
+                           max_gram: 20,
                            token_chars: %W(letter digit)
                          }
                        },
@@ -153,7 +153,13 @@ module Palette
                            char_filter: %W(my_icu_normalizer)
                          },
                          katakana: {
-                           tokenizer: 'n_gram',
+                           tokenizer: 'whitespace',
+                           filter: %W(katakana_translator custom_katakana_stemmer ngram_filter),
+                           char_filter: %W(my_icu_normalizer)
+                         },
+                         katakana_whitespace: {
+                           tokenizer: 'whitespace',
+                           filter: %W(katakana_translator custom_katakana_stemmer),
                            char_filter: %W(my_icu_normalizer)
                          },
                          autocomplete_analyzer: {
@@ -163,9 +169,9 @@ module Palette
                          }
                        },
                        filter: {
-                         katakana_readingform: {
-                           type: 'kuromoji_readingform',
-                           use_romaji: false
+                         katakana_translator: {
+                           type: 'icu_transform',
+                           id: 'Hiragana-Katakana'
                          },
                          custom_katakana_stemmer: {
                            type: 'kuromoji_stemmer',
@@ -178,6 +184,11 @@ module Palette
                          greek_lowercase_filter: {
                            type:     'lowercase',
                            language: 'greek',
+                         },
+                         ngram_filter: {
+                           type: 'ngram',
+                           min_gram: 1,
+                           max_gram: 100,
                          },
                          autocomplete_filter: {
                            type: 'edge_ngram',
