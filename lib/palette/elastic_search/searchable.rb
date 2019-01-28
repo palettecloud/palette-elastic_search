@@ -99,7 +99,11 @@ module Palette
         end
         after_commit on: [:update] do
           if ::Palette::ElasticSearch.configuration.run_callbacks
-            __elasticsearch__.update_document
+            begin
+              __elasticsearch__.update_document
+            rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
+              __elasticsearch__.index_document
+            end
           end
         end
         after_commit on: [:destroy] do
