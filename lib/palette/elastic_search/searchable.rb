@@ -91,7 +91,22 @@ module Palette
       extend ::ActiveSupport::Concern
       included do
         include ::Elasticsearch::Model
-        include ::Elasticsearch::Model::Callbacks
+
+        after_commit on: [:create] do
+          if ::Palette::ElasticSearch.configuration.run_callbacks
+            __elasticsearch__.index_document
+          end
+        end
+        after_commit on: [:update] do
+          if ::Palette::ElasticSearch.configuration.run_callbacks
+            __elasticsearch__.update_document
+          end
+        end
+        after_commit on: [:destroy] do
+          if ::Palette::ElasticSearch.configuration.run_callbacks
+            __elasticsearch__.delete_document
+          end
+        end
 
         index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
         document_type self.table_name.underscore.singularize
