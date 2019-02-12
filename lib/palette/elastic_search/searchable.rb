@@ -190,6 +190,11 @@ module Palette
                            type: 'custom',
                            tokenizer: 'whitespace',
                            filter: %W(lowercase autocomplete_filter)
+                         },
+                         autocomplete_whitespace: {
+                           type: 'custom',
+                           tokenizer: 'whitespace',
+                           filter: %W(lowercase)
                          }
                        },
                        filter: {
