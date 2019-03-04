@@ -94,7 +94,11 @@ module Palette
 
         after_commit on: [:create] do
           if ::Palette::ElasticSearch.configuration.run_callbacks
-            __elasticsearch__.index_document
+            begin
+              __elasticsearch__.index_document
+            rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
+              Rails.logger.error e.message
+            end
           end
         end
         after_commit on: [:update] do
@@ -103,12 +107,18 @@ module Palette
               __elasticsearch__.update_document
             rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
               __elasticsearch__.index_document
+            rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
+              Rails.logger.error e.message
             end
           end
         end
         after_commit on: [:destroy] do
           if ::Palette::ElasticSearch.configuration.run_callbacks
-            __elasticsearch__.delete_document
+            begin
+              __elasticsearch__.delete_document
+            rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
+              Rails.logger.error e.message
+            end
           end
         end
 
