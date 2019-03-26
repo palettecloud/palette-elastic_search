@@ -143,7 +143,7 @@ module Palette
                            type: 'ngram',
                            min_gram: 1,
                            max_gram: 20,
-                           token_chars: %W(letter digit)
+                           token_chars: %W(letter digit punctuation)
                          }
                        },
                        analyzer: {
