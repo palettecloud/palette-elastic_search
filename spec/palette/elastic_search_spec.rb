@@ -27,8 +27,7 @@ RSpec.describe Palette::ElasticSearch do
               {
                 bool: {
                   must: [
-                   { simple_query_string: { query: "Steve", fields: [:name], analyzer: "ngram"} },
-                   { simple_query_string: { query: "Jobs",  fields: [:name], analyzer: "ngram"} }
+                   { match: { name: { query: "Steve Jobs", analyzer: :ngram} } }
                   ]
                 }
               },
@@ -199,11 +198,11 @@ RSpec.describe Palette::ElasticSearch do
       end
     end
 
-    context 'partial' do
+    context 'full_match_with_analyzer' do
       let(:field) { :name }
-      it 'partial_match is returned' do
+      it 'full_match_with_analyzer is returned' do
         res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
-        expect(res[:pattern]).to eq('partial_match')
+        expect(res[:pattern]).to eq('full_match_with_analyzer')
       end
     end
 
@@ -220,46 +219,6 @@ RSpec.describe Palette::ElasticSearch do
       it 'prefix_match is returned' do
         res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
         expect(res[:pattern]).to eq('prefix_match')
-      end
-    end
-  end
-
-  describe 'logging_adapter' do
-    shared_context 'std logging adapter' do
-      before do
-        ::Palette::ElasticSearch.configure do |config|
-          config.logging_adapter = :std
-        end
-      end
-    end
-
-    shared_context 'new_relic logging_adapter' do
-      before do
-        ::Palette::ElasticSearch.configure do |config|
-          config.logging_adapter = :new_relic
-        end
-      end
-    end
-
-    context 'logging adapter is std' do
-      include_context 'std logging adapter'
-      it do
-        expect(::Palette::ElasticSearch::Logger.instance.adapter).to be_instance_of(::Palette::ElasticSearch::StdLoggingAdapter)
-      end
-
-      it do
-        expect(::Palette::ElasticSearch::Logger.instance.error(StandardError.new('test'))).to eq(true)
-      end
-    end
-
-    context 'logging adapter is new_relic' do
-      include_context 'new_relic logging_adapter'
-      it do
-        expect(::Palette::ElasticSearch::Logger.instance.adapter).to be_instance_of(::Palette::ElasticSearch::NewRelicLoggingAdapter)
-      end
-
-      it do
-        expect(::Palette::ElasticSearch::Logger.instance.error(StandardError.new('test'))).to eq(nil)
       end
     end
   end

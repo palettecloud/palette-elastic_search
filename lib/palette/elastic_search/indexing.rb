@@ -110,6 +110,16 @@ module Palette
 
           self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
         end
+
+        def check_deprecated_analyzer
+          self.mappings.to_hash[self.model_name.param_key.to_sym][:properties].keys.each do |key|
+            case self.mappings.to_hash[self.model_name.param_key.to_sym][:properties][key][:analyzer]
+            when 'bigram'
+              Rails.logger.warn 'bigram is deprecated. use ngram instead'
+            end
+          end
+        end
+
       end
 
     end
