@@ -10,7 +10,7 @@ module Palette
           begin
             index_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
-            ::Palette::ElasticSearch::Logger.instance.error e.message
+            ::Palette::ElasticSearch::Logger.instance.error e
           end
         end
 
@@ -20,7 +20,7 @@ module Palette
           rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
             es_index_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
-            ::Palette::ElasticSearch::Logger.instance.error e.message
+            ::Palette::ElasticSearch::Logger.instance.error e
           end
         end
 
@@ -28,7 +28,7 @@ module Palette
           begin
             delete_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
-            ::Palette::ElasticSearch::Logger.instance.error e.message
+            ::Palette::ElasticSearch::Logger.instance.error e
           end
         end
       end

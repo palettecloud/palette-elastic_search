@@ -12,7 +12,7 @@ module Palette
       end
 
       def error(error)
-        adapter.error error
+        adapter.error error.message
       end
     end
 
