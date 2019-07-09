@@ -5,7 +5,7 @@ module Palette
       attr_accessor :adapter
 
       def initialize
-        @adapter = if Configuration.instance.logger_adapter == 'new_relic'
+        @adapter = if Configuration.instance.logging_adapter.to_s == :new_relic
                      ::Palette::ElasticSearch::NewRelicLoggingAdapter.new
                    else
                      ::Palette::ElasticSearch::StdLoggingAdapter.new

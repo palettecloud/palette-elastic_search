@@ -3,11 +3,11 @@ module Palette
     class Configuration
       include Singleton
       attr_accessor :run_callbacks
-      attr_accessor :logger_adapter
+      attr_accessor :logging_adapter
 
       def initialize
         @run_callbacks = true
-        @logger_adapter = 'rails'
+        @logging_adapter = :rails
       end
     end
   end
