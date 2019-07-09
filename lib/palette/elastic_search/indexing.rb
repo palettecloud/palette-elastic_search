@@ -1,18 +1,22 @@
 module Palette
   module ElasticSearch
     module Indexing
+
       module InstanceMethods
-        def es_index_document
+        extend ::ActiveSupport::Concern
+        include ::Elasticsearch::Model
+
+        def palette_index_document
           begin
-            __elasticsearch__.index_document
+            index_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
             ::Palette::ElasticSearch::Logger.instance.error e.message
           end
         end
 
-        def es_update_document
+        def palette_update_document
           begin
-            self.__elasticsearch__.update_document
+            update_document
           rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
             es_index_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
@@ -20,9 +24,9 @@ module Palette
           end
         end
 
-        def es_delete_document
+        def palette_delete_document
           begin
-            __elasticsearch__.delete_document
+            delete_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
             ::Palette::ElasticSearch::Logger.instance.error e.message
           end
@@ -114,6 +118,7 @@ module Palette
           end
         end
       end
+
     end
   end
 end

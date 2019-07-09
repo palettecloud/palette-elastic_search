@@ -1,24 +1,29 @@
 module Palette
   module ElasticSearch
     module Searchable
-
       extend ::ActiveSupport::Concern
-      extend ::Palette::ElasticSearch::Indexing::ClassMethods
-      include ::Palette::ElasticSearch::Indexing::InstanceMethods
+
+      Elasticsearch::Model::Proxy::InstanceMethodsProxy.class_eval do
+        include ::Palette::ElasticSearch::Indexing::InstanceMethods
+      end
+
+      class_methods do
+        include ::Palette::ElasticSearch::Indexing::ClassMethods
+      end
 
       included do
         include ::Elasticsearch::Model
 
         after_commit on: [:create] do
-          es_index_document if ::Palette::ElasticSearch.configuration.run_callbacks
+          self.__elasticsearch__.palette_index_document if ::Palette::ElasticSearch.configuration.run_callbacks
         end
 
         after_commit on: [:update] do
-          es_update_document if ::Palette::ElasticSearch.configuration.run_callbacks
+          self.__elasticsearch__.palette_update_document if ::Palette::ElasticSearch.configuration.run_callbacks
         end
 
         after_commit on: [:destroy] do
-          es_delete_document if ::Palette::ElasticSearch.configuration.run_callbacks
+          self.__elasticsearch__.palette_delete_document if ::Palette::ElasticSearch.configuration.run_callbacks
         end
 
         index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
