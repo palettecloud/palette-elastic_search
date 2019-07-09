@@ -2,18 +2,17 @@ module Palette
   module ElasticSearch
     class Logger
       include Singleton
-      attr_accessor :adapter
 
-      def initialize
-        @adapter = if Configuration.instance.logging_adapter.to_s == :new_relic
-                     ::Palette::ElasticSearch::NewRelicLoggingAdapter.new
-                   else
-                     ::Palette::ElasticSearch::StdLoggingAdapter.new
-                   end
+      def adapter
+        if Configuration.instance.logging_adapter.to_sym == :new_relic
+          NewRelicLoggingAdapter.instance
+        else
+          StdLoggingAdapter.instance
+        end
       end
 
       def error(error)
-        @adapter.error error
+        adapter.error error
       end
     end
 

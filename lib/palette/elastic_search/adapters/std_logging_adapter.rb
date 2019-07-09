@@ -1,6 +1,7 @@
 module Palette
   module ElasticSearch
     class StdLoggingAdapter
+      include Singleton
       attr_accessor :logger
 
       def initialize
