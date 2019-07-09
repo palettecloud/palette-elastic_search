@@ -7,7 +7,7 @@ module Palette
 
       def initialize
         @run_callbacks = true
-        @logging_adapter = :rails
+        @logging_adapter = :std
       end
     end
   end
