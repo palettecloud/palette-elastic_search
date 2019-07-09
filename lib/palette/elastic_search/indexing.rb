@@ -34,6 +34,7 @@ module Palette
       end
 
       module ClassMethods
+
         def update_elasticsearch_index!(options = {})
           if current_indices.present?
             if current_indices.include?(self.index_name)
@@ -71,19 +72,7 @@ module Palette
                                                            settings: self.settings.to_hash,
                                                            mappings: self.mappings.to_hash
                                                        }
-          process_start_at = Time.current
           self.__elasticsearch__.import(index: new_index_name, query: options[:query])
-          process_end_at = Time.current
-
-          # @note for new records generated while indexing
-          loop do
-            break if self.where(updated_at: process_start_at..process_end_at).empty?
-            previous_start_at = process_start_at
-            process_start_at = Time.current
-            # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/lib/elasticsearch/model/importing.rb
-            self.__elasticsearch__.import(index: new_index_name, query: -> {where(updated_at: previous_start_at..Time.current)})
-            process_end_at = Time.current
-          end
         end
 
         def create_index!(options = {})
@@ -99,23 +88,27 @@ module Palette
         def reindex!(options = {})
           new_index_name = get_new_index_name
           old_index_name = current_indices.sort.last
+
+          process_start_at = Time.current
           indexing(new_index_name, options)
+          process_end_at = Time.current
+
           self.__elasticsearch__.client.indices.update_aliases body: {
               actions: [
                   {remove: {index: old_index_name, alias: self.index_name}},
                   {add: {index: new_index_name, alias: self.index_name}}
               ]
           }
-          self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
-        end
 
-        def check_deprecated_analyzer
-          self.mappings.to_hash[self.model_name.param_key.to_sym][:properties].keys.each do |key|
-            case self.mappings.to_hash[self.model_name.param_key.to_sym][:properties][key][:analyzer]
-            when 'bigram'
-              Rails.logger.warn 'bigram is deprecated. use ngram instead'
+          self.where(updated_at: (process_start_at..process_end_at)).find_each do |record|
+            begin
+              record.__elasticsearch__.update_document
+            rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
+              record.__elasticsearch__.index_document
             end
           end
+
+          self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
         end
       end
 
