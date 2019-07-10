@@ -1,5 +1,7 @@
 require "bundler/setup"
 require "palette/elastic_search"
+require 'pry'
+require 'user'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
