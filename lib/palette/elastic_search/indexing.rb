@@ -18,7 +18,7 @@ module Palette
           begin
             update_document
           rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
-            es_index_document
+            palette_index_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
             ::Palette::ElasticSearch::Logger.instance.error e
           end
@@ -101,11 +101,7 @@ module Palette
           }
 
           self.where(updated_at: (process_start_at..process_end_at)).find_each do |record|
-            begin
-              record.__elasticsearch__.update_document
-            rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
-              record.__elasticsearch__.index_document
-            end
+            record.__elasticsearch__.palette_update_document
           end
 
           self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
