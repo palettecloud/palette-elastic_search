@@ -62,7 +62,7 @@ module Palette
         end
 
         def get_new_index_name
-          "#{self.index_name}_#{Time.now.strftime("%Y%m%d_%H%M%S")}"
+          "#{self.index_name}_#{Time.current.strftime("%Y%m%d_%H%M%S")}"
         end
 
         def indexing(new_index_name, options = {})
