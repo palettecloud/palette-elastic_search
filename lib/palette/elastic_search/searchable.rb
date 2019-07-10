@@ -3,6 +3,7 @@ module Palette
     module Searchable
       extend ::ActiveSupport::Concern
 
+      # @see https://github.com/elastic/elasticsearch-rails/blob/5.x/elasticsearch-model/lib/elasticsearch/model.rb#L101
       ::Elasticsearch::Model::Proxy::InstanceMethodsProxy.class_eval do
         include ::Palette::ElasticSearch::Indexing::InstanceMethods
       end
