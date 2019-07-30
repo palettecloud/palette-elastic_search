@@ -27,6 +27,8 @@ class User < ActiveRecord::Base
       indexes :name_prefix, analyzer: 'autocomplete_analyzer'
       indexes :sex, analyzer: 'keyword_analyzer'
       indexes :age, type: 'integer'
+      indexes :is_admin, type: 'boolean'
+      indexes :location, type: 'geo_point'
       indexes :address, type: 'string', analyzer: 'ngram'
       indexes :phone_numbers, type: 'nested' do
         indexes :number, analyzer: 'keyword_analyzer'
