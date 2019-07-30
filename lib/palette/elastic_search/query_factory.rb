@@ -22,7 +22,6 @@ module Palette
 
       # @param [Hash] attributes
       def execute(attributes)
-        format_geo_point!(attributes)
         query_array = []
         filter_array = []
 
@@ -211,25 +210,6 @@ module Palette
           mapping = mapping[field.to_s.split('.').first.to_sym]
         end
         mapping[:analyzer]&.to_sym
-      end
-
-      def format_geo_point!(attributes)
-        return unless attributes.key?(:longitude) || attributes.key?(:latitude) || attributes.key?(:distance)
-
-        unless attributes.key?(:longitude) && attributes.key?(:latitude) && attributes.key?(:distance)
-          delete_geo_point_attributes!(attributes)
-          return
-        end
-
-        attributes[:geo_point] = {latitude: attributes[:latitude], longitude: attributes[:longitude], distance: attributes[:distance]}
-        delete_geo_point_attributes!(attributes)
-        attributes
-      end
-
-      def delete_geo_point_attributes!(attributes)
-        attributes.delete(:longitude)
-        attributes.delete(:latitude)
-        attributes.delete(:distance)
       end
     end
   end
