@@ -85,11 +85,11 @@ module Palette
                          },
                          bigram: {
                            tokenizer: 'bi_gram',
-                           char_filter: %W(my_icu_normalizer)
+                           char_filter: %W(my_icu_normalizer space_trimmer)
                          },
                          ngram: {
                            tokenizer: 'n_gram',
-                           char_filter: %W(my_icu_normalizer)
+                           char_filter: %W(my_icu_normalizer space_trimmer)
                          },
                          katakana: {
                            tokenizer: 'whitespace',
@@ -160,7 +160,12 @@ module Palette
                            type: 'pattern_replace',
                            pattern: '[\x{30FC}\x{2010}-\x{2015}\x{2212}\x{FF70}-]',
                            replacement: ''
-                         }
+                         },
+                         space_trimmer: {
+                          type: 'pattern_replace',
+                          pattern: '[\s]',
+                          replacement: ''
+                        }
                        }
                      }
                    }
