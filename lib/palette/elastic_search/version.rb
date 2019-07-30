@@ -1,5 +1,5 @@
 module Palette
   module ElasticSearch
-    VERSION = "0.4.6"
+    VERSION = "0.4.8"
   end
 end

@@ -27,8 +27,7 @@ RSpec.describe Palette::ElasticSearch do
               {
                 bool: {
                   must: [
-                   { simple_query_string: { query: "Steve", fields: [:name], analyzer: "ngram"} },
-                   { simple_query_string: { query: "Jobs",  fields: [:name], analyzer: "ngram"} }
+                   { match: { name: { query: "Steve Jobs", analyzer: :ngram} } }
                   ]
                 }
               },
@@ -199,11 +198,11 @@ RSpec.describe Palette::ElasticSearch do
       end
     end
 
-    context 'partial' do
+    context 'full_match_with_analyzer' do
       let(:field) { :name }
-      it 'partial_match is returned' do
+      it 'full_match_with_analyzer is returned' do
         res = ::Palette::ElasticSearch::QueryFactory.send(:get_query_pattern, field)
-        expect(res[:pattern]).to eq('partial_match')
+        expect(res[:pattern]).to eq('full_match_with_analyzer')
       end
     end
 
