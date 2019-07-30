@@ -4,10 +4,8 @@ module Palette
       PARTIAL_MATCH_ANALYZERS = %i(kuromoji_analyzer bigram katakana).freeze
 
       attr_reader :mappings_hashes
-      attr_reader :models
 
       def initialize(models)
-        @models = models
         @mappings_hashes = {}
         models.each do |model|
           next if @mappings_hashes[model.document_type.to_sym].present?
