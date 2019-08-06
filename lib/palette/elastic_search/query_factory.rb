@@ -39,15 +39,12 @@ module Palette
             query_partial = full_match_for((attributes[attr]).to_s, field, query_pattern[:analyzer])
           when :prefix_match
             query_partial = prefix_match_for((attributes[attr]).to_s, field)
-
           when :date
             query_partial = date_for(attributes, field)
-
           when :integer, :boolean
             filter_partial = term_query_by(attributes, field)
           when :geo_point
             filter_partial = geo_point_for(attributes)
-
           when :nested
             query_partial = nested_for((attributes[attr]).to_s, field)
           else
@@ -69,11 +66,10 @@ module Palette
       # @param [String] field
       # @return [Hash]
       def query_partial_for(query, field)
-        hash = {bool: {must: []}}
-        query.sub(/\A[[:space:]]+/, '').split(/[[:blank:]]+/).each do |q|
-          hash[:bool][:must] << {simple_query_string: {query: q, fields: [field], analyzer: 'ngram'}}
+        must_condition_list = query.sub(/\A[[:space:]]+/, '').split(/[[:blank:]]+/).map do |q|
+          {simple_query_string: {query: q, fields: [field], analyzer: 'ngram'}}
         end
-        hash
+        {bool: {must: must_condition_list}}
       end
 
       # generate match query

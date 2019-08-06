@@ -219,7 +219,7 @@ RSpec.describe Palette::ElasticSearch::QueryFactory do
 
     context 'type is boolean' do
       let(:field) {:is_admin}
-      it 'integer is returned' do
+      it 'boolean is returned' do
         res = builder.send :get_query_pattern, field
         expect(res[:pattern]).to eq(:boolean)
       end
