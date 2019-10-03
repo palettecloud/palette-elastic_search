@@ -16,7 +16,7 @@ module Palette
 
         def palette_update_document
           begin
-            update_document
+            update_document(retry_on_conflict: 1)
           rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
             palette_index_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
