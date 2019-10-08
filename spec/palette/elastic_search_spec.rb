@@ -8,6 +8,7 @@ RSpec.describe Palette::ElasticSearch do
     expect(Palette::ElasticSearch::VERSION).not_to be nil
   end
 
+  # @note callback indexingの自動設定削除が完了したら消す
   describe 'callbacks' do
     let(:user) do
       User.new.tap do |user|
@@ -41,7 +42,7 @@ RSpec.describe Palette::ElasticSearch do
         include_context 'configured to true'
 
         specify 'run callbacks' do
-          expect(user.__elasticsearch__).to receive(:index_document)
+          expect(user.__elasticsearch__).not_to receive(:index_document)
           subject
         end
       end
@@ -64,7 +65,7 @@ RSpec.describe Palette::ElasticSearch do
         include_context 'configured to true'
 
         specify 'run callbacks' do
-          expect(user.__elasticsearch__).to receive(:update_document)
+          expect(user.__elasticsearch__).not_to receive(:update_document)
           subject
         end
       end
@@ -87,7 +88,7 @@ RSpec.describe Palette::ElasticSearch do
         include_context 'configured to true'
 
         specify 'run callbacks' do
-          expect(user.__elasticsearch__).to receive(:delete_document)
+          expect(user.__elasticsearch__).not_to receive(:delete_document)
           subject
         end
       end
