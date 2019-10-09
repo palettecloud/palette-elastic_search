@@ -13,6 +13,7 @@ RSpec.describe Palette::ElasticSearch::QueryFactory do
       {
           name: 'Steve Jobs',
           name_prefix: 'Steve Jobs',
+          name_search: 'Steve Jobs',
           age: 50,
           is_admin: true,
           geo_point: {
@@ -43,6 +44,13 @@ RSpec.describe Palette::ElasticSearch::QueryFactory do
                                   {match: {name_prefix: {query: "Steve Jobs", analyzer: "whitespace"}}}
                               ]
                           }
+                      },
+                      {
+                        bool: {
+                          must: [
+                              {match: {name_search: {query: "Steve Jobs", analyzer: :keyword_analyzer}}}
+                          ]
+                      }
                       },
                       {
                           nested: {
@@ -96,6 +104,7 @@ RSpec.describe Palette::ElasticSearch::QueryFactory do
       {
           name: 'Steve Jobs',
           name_prefix: 'Steve Jobs',
+          name_search: 'Steve Jobs',
           age: 50,
           'phone_numbers.number': '+81 01-2345-6789',
           created_at: Date.today
@@ -110,6 +119,7 @@ RSpec.describe Palette::ElasticSearch::QueryFactory do
       {
           name: 'Steve Jobs',
           name_prefix: 'Steve Jobs',
+          name_search: 'Steve Jobs',
           age: 50,
           'phone_numbers.number': '+81 01-2345-6789',
           created_at: created_at

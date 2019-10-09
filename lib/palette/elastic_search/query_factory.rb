@@ -173,13 +173,14 @@ module Palette
           when :date, :integer, :boolean, :geo_point, :nested
             return {pattern: type.to_sym}
           else
-            case analyzer_by(index, field, should_nested).to_sym
+            analyzer = search_analyzer_by(index, field, should_nested).present? ? search_analyzer_by(index, field, should_nested) : analyzer_by(index, field, should_nested)
+            case analyzer
             when *PARTIAL_MATCH_ANALYZERS
               return {pattern: :partial_match}
             when :autocomplete_analyzer
               return {pattern: :prefix_match}
             else
-              return {pattern: :full_match_with_analyzer, analyzer: analyzer_by(index, field, should_nested)}
+              return {pattern: :full_match_with_analyzer, analyzer: analyzer}
             end
           end
         end
@@ -196,6 +197,16 @@ module Palette
           mapping = mapping[field.to_s.split('.').first.to_sym]
         end
         mapping[:type]&.to_sym
+      end
+
+      def search_analyzer_by(index, field, should_nested = false)
+        mapping = @mappings_hashes[index]
+        if should_nested
+          mapping = mapping[field.to_s.split('.').first.to_sym][:properties][field.to_s.split('.').last.to_sym]
+        else
+          mapping = mapping[field.to_s.split('.').first.to_sym]
+        end
+        mapping[:search_analyzer]&.to_sym
       end
 
       def analyzer_by(index, field, should_nested = false)

@@ -25,6 +25,7 @@ class User < ActiveRecord::Base
     mapping _source: { enabled: true }, _all: { enabled: true }, dynamic: false do
       indexes :name, type: 'string', analyzer: 'ngram'
       indexes :name_prefix, analyzer: 'autocomplete_analyzer'
+      indexes :name_search, type: 'string', analyzer: 'ngram', search_analyzer: 'keyword_analyzer'
       indexes :sex, analyzer: 'keyword_analyzer'
       indexes :age, type: 'integer'
       indexes :is_admin, type: 'boolean'
