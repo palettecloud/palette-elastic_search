@@ -22,18 +22,6 @@ module Palette
       included do
         include ::Elasticsearch::Model
 
-        after_commit on: [:create] do
-          self.__elasticsearch__.palette_index_document if ::Palette::ElasticSearch.configuration.run_callbacks
-        end
-
-        after_commit on: [:update] do
-          self.__elasticsearch__.palette_update_document if ::Palette::ElasticSearch.configuration.run_callbacks
-        end
-
-        after_commit on: [:destroy] do
-          self.__elasticsearch__.palette_delete_document if ::Palette::ElasticSearch.configuration.run_callbacks
-        end
-
         index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
         document_type self.table_name.underscore.singularize
 
