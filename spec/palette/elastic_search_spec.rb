@@ -41,7 +41,7 @@ RSpec.describe Palette::ElasticSearch do
       context 'run_callbacks configured to true' do
         include_context 'configured to true'
 
-        specify 'run callbacks' do
+        specify 'not run callbacks' do
           expect(user.__elasticsearch__).not_to receive(:index_document)
           subject
         end
@@ -50,7 +50,7 @@ RSpec.describe Palette::ElasticSearch do
       context 'run_callbacks configured to false' do
         include_context 'configured to false'
 
-        specify 'run callbacks' do
+        specify 'not run callbacks' do
           expect(user.__elasticsearch__).not_to receive(:index_document)
           subject
         end
@@ -64,7 +64,7 @@ RSpec.describe Palette::ElasticSearch do
       context 'run_callbacks configured to true' do
         include_context 'configured to true'
 
-        specify 'run callbacks' do
+        specify 'not run callbacks' do
           expect(user.__elasticsearch__).not_to receive(:update_document)
           subject
         end
@@ -73,7 +73,7 @@ RSpec.describe Palette::ElasticSearch do
       context 'run_callbacks configured to false' do
         include_context 'configured to false'
 
-        specify 'run callbacks' do
+        specify 'not run callbacks' do
           expect(user.__elasticsearch__).not_to receive(:update_document)
           subject
         end
@@ -87,7 +87,7 @@ RSpec.describe Palette::ElasticSearch do
       context 'run_callbacks configured to true' do
         include_context 'configured to true'
 
-        specify 'run callbacks' do
+        specify 'not run callbacks' do
           expect(user.__elasticsearch__).not_to receive(:delete_document)
           subject
         end
@@ -96,7 +96,7 @@ RSpec.describe Palette::ElasticSearch do
       context 'run_callbacks configured to false' do
         include_context 'configured to false'
 
-        specify 'run callbacks' do
+        specify 'not run callbacks' do
           expect(user.__elasticsearch__).not_to receive(:delete_document)
           subject
         end
