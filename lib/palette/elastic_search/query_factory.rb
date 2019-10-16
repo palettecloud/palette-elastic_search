@@ -82,7 +82,10 @@ module Palette
         if attribute.is_a?(Hash)
           if attribute[:fields].present?
             attributes = {bool: {should: []}}
-            attributes[:bool][:should] << attribute[:fields].map { |item| { match: { item => { query: attribute[:query], operator: :and } } }}
+            attribute[:fields].each do |item|
+              attributes[:bool][:should] << { match: { item => { query: attribute[:query], operator: :and } } }
+            end
+            return attributes
           else
             {bool: {must: [{match: {field => {query: attribute[:query].to_s, analyzer: analyzer, operator: attribute[:operator] }}}]}}
           end
