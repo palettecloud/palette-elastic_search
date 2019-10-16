@@ -36,7 +36,7 @@ module Palette
           when :partial_match
             query_partial = query_partial_for((attributes[attr]).to_s, field)
           when :full_match_with_analyzer
-            query_partial = full_match_for((attributes[attr]).to_s, field, query_pattern[:analyzer])
+            query_partial = full_match_for((attributes[attr]), field, query_pattern[:analyzer])
           when :prefix_match
             query_partial = prefix_match_for((attributes[attr]).to_s, field)
           when :date
@@ -78,8 +78,8 @@ module Palette
       # @param [String] field
       # @param [String] analyzer
       # @return [Hash]
-      def full_match_for(query, field, analyzer)
-        {bool: {must: [{match: {field => {query: query, analyzer: analyzer}}}]}}
+      def full_match_for(attribute, field, analyzer)
+        {bool: {must: [{match: {field => {query: attribute[:query].to_s, analyzer: analyzer, operator: attribute[:operator] }}}]}}
       end
 
       # 前方一致のクエリを生成
