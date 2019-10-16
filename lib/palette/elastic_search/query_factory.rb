@@ -74,18 +74,16 @@ module Palette
 
       # generate match query
       #
-      # @param [String] query
+      # @param [Hash] attribute
       # @param [String] field
       # @param [String] analyzer
       # @return [Hash]
       def full_match_for(attribute, field, analyzer)
         if attribute.is_a?(Hash)
           if attribute[:fields].present?
-            attributes = {bool: {should: []}}
-            attribute[:fields].each do |item|
-              attributes[:bool][:should] << { match: { item => { query: attribute[:query].to_s, analyzer: analyzer, operator: :and } } }
-            end
-            return attributes
+            query = {bool: {should: []}}
+            query[:bool][:should] = attribute[:fields].map { |item| { match: { item => { query: attribute[:query].to_s, analyzer: analyzer, operator: :and } } }}
+            return query
           else
             {bool: {must: [{match: {field => {query: attribute[:query].to_s, analyzer: analyzer, operator: attribute[:operator] }}}]}}
           end
@@ -155,7 +153,7 @@ module Palette
 
       # for nested query
       #
-      # @param [String] query
+      # @param [Hash] attribute
       # @param [String] field
       # @return [Hash]
       def nested_for(attribute, field)
