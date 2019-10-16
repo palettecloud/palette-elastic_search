@@ -83,7 +83,7 @@ module Palette
           if attribute[:fields].present?
             attributes = {bool: {should: []}}
             attribute[:fields].each do |item|
-              attributes[:bool][:should] << { match: { item => { query: attribute[:query], operator: :and } } }
+              attributes[:bool][:should] << { match: { item => { query: attribute[:query].to_s, analyzer: analyzer, operator: :and } } }
             end
             return attributes
           else
