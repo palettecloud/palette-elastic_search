@@ -14,6 +14,8 @@ RSpec.describe Palette::ElasticSearch::QueryFactory do
           name: 'Steve Jobs',
           name_prefix: 'Steve Jobs',
           name_search: 'Steve Jobs',
+          user_name_search: { query: '汎用 太郎', operator: :and },
+          and_search: { query: 'ハンヨウ タロウ', fields: [:and_search, :and_search_kana] },
           age: 50,
           is_admin: true,
           geo_point: {
@@ -51,6 +53,21 @@ RSpec.describe Palette::ElasticSearch::QueryFactory do
                               {match: {name_search: {query: "Steve Jobs", analyzer: :keyword_analyzer}}}
                           ]
                       }
+                      },
+                      {
+                        bool: {
+                          must: [
+                            {match: {user_name_search: {query: "汎用 太郎", analyzer: :keyword_analyzer, operator: :and}}}
+                          ]
+                        }
+                      },
+                      {
+                        bool: {
+                          should: [
+                            {match: {and_search: {query: "ハンヨウ タロウ", analyzer: :keyword_analyzer, operator: :and}}},
+                            {match: {and_search_kana: {query: "ハンヨウ タロウ", analyzer: :keyword_analyzer, operator: :and}}}
+                          ]
+                        }
                       },
                       {
                           nested: {
@@ -105,6 +122,8 @@ RSpec.describe Palette::ElasticSearch::QueryFactory do
           name: 'Steve Jobs',
           name_prefix: 'Steve Jobs',
           name_search: 'Steve Jobs',
+          user_name_search: { query: '汎用 太郎', operator: :and },
+          and_search: { query:'ハンヨウ タロウ', fields: [:and_search, :and_search_kana]},
           age: 50,
           'phone_numbers.number': '+81 01-2345-6789',
           created_at: Date.today
@@ -120,6 +139,8 @@ RSpec.describe Palette::ElasticSearch::QueryFactory do
           name: 'Steve Jobs',
           name_prefix: 'Steve Jobs',
           name_search: 'Steve Jobs',
+          user_name_search: { query: '汎用 太郎', operator: :and },
+          and_search: { query:'ハンヨウ タロウ', fields: [:and_search, :and_search_kana]},
           age: 50,
           'phone_numbers.number': '+81 01-2345-6789',
           created_at: created_at
