@@ -79,7 +79,11 @@ module Palette
       # @param [String] analyzer
       # @return [Hash]
       def full_match_for(attribute, field, analyzer)
-        {bool: {must: [{match: {field => {query: attribute[:query].to_s, analyzer: analyzer, operator: attribute[:operator] }}}]}}
+        if attributes.is_a?(Hash)
+          {bool: {must: [{match: {field => {query: attribute[:query].to_s, analyzer: analyzer, operator: attribute[:operator] }}}]}}
+        else
+          {bool: {must: [{match: {field => {query: attribute.to_s, analyzer: analyzer }}}]}}
+        end
       end
 
       # 前方一致のクエリを生成
