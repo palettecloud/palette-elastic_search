@@ -46,7 +46,7 @@ module Palette
           when :geo_point
             filter_partial = geo_point_for(attributes)
           when :nested
-            query_partial = nested_for((attributes[attr]).to_s, field)
+            query_partial = nested_for(attributes[attr], field)
           else
             next
           end
@@ -150,14 +150,14 @@ module Palette
       # @param [String] query
       # @param [String] field
       # @return [Hash]
-      def nested_for(query, field)
+      def nested_for(attribute, field)
         path = field.to_s.split('.').first
         query_pattern = get_query_pattern(field.to_sym, true)
         case query_pattern[:pattern].to_sym
         when :partial_match
-          return {nested: {path: path, query: query_partial_for(query, field)}}
+          return {nested: {path: path, query: query_partial_for(attribute.to_s, field)}}
         when :full_match_with_analyzer
-          return {nested: {path: path, query: full_match_for(query, field, query_pattern[:analyzer])}}
+          return {nested: {path: path, query: full_match_for(attribute, field, query_pattern[:analyzer])}}
         else
           return nil
         end
