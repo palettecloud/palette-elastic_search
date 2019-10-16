@@ -80,7 +80,12 @@ module Palette
       # @return [Hash]
       def full_match_for(attribute, field, analyzer)
         if attribute.is_a?(Hash)
-          {bool: {must: [{match: {field => {query: attribute[:query].to_s, analyzer: analyzer, operator: attribute[:operator] }}}]}}
+          if attribute[:fields].present?
+            attributes = {bool: {should: []}}
+            attributes[:bool][:should] << attribute[:fields].map { |item| { match: { item => { query: attribute[:query], operator: :and } } }}
+          else
+            {bool: {must: [{match: {field => {query: attribute[:query].to_s, analyzer: analyzer, operator: attribute[:operator] }}}]}}
+          end
         else
           {bool: {must: [{match: {field => {query: attribute.to_s, analyzer: analyzer }}}]}}
         end
