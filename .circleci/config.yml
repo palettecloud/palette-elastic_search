@@ -44,7 +44,11 @@ echo-tag: &echo-tag
   run:
     name: Echo Tag
     command: |
-      echo "${CIRCLE_TAG} test"
+      # test="${CIRCLE_TAG%.*}"
+      # test+="$((${CIRCLE_TAG##*.} + 1))"
+      TEST_TAG="v0.4.10"
+      test="${TEST_TAG%.*}"
+      test+="$((${TEST_TAG##*.} + 1))"
 
 setting-build: &setting-build
   steps:
