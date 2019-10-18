@@ -1,5 +1,10 @@
-working_directory: &working_directory
+defaults: &defalut
+  working_directory: &working_directory
   ~/palette-elastic_search
+
+deps-images: &deps-images
+  docker:
+    - image: 'quay.io/palettecloud/ruby-cron:v2.4.7'
 
 bundle-install: &bundle-install
   run:
@@ -33,48 +38,49 @@ run-rspec: &run-rspec
         --format progress \
         -- ${TESTFILES}
 
+setting-build: &setting-build
+  steps:
+    - checkout
+    - save_cache:
+        key: *checkout_cache_key
+        paths: *working_directory
+    - *restore_bundle_cache
+    - *bundle-install
+    - save_cache:
+        key: *bundle_cache_key
+        paths:
+          - vendor/bundle
+rspec-test: &rspec-test
+  steps:
+    - attach_workspace:
+      at: .
+    - checkout
+    - *restore_checkout_cache
+    - *restore_bundle_cache
+    - *bundle_path
+    - *run-rspec
+    - store_test_results:
+        path: test-results
+    - store_artifacts:
+        path: test-results
+        destination: test-results
+
 version: 2
 jobs:
-  build:
-    docker:
-      - image: 'quay.io/palettecloud/ruby-cron:v2.4.7'
-    working_directory: *working_directory
-    steps:
-      - checkout
-      - save_cache:
-          key: *checkout_cache_key
-          paths: *working_directory
-      - *restore_bundle_cache
-      - *bundle-install
-      - save_cache:
-          key: *bundle_cache_key
-          paths:
-            - vendor/bundle
+  build-setting:
+    <<: [*defaults, *deps-images]
+    <<: *setting-build
 
   test-rspec:
-    docker:
-      - image: 'quay.io/palettecloud/ruby-cron:v2.4.7'
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-        at: .
-      - checkout
-      - *restore_checkout_cache
-      - *restore_bundle_cache
-      - *bundle_path
-      - *run-rspec
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: test-results
-          destination: test-results
+    <<: [*defaults, *deps-images]
+    <<: *rspec-test
 
 
 workflows:
   version: 2
-  base:
+  build-and-test:
     jobs:
-      - build
+      - build-setting
       - test-rspec:
         requires:
-          - build
+          - build-setting
