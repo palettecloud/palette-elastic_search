@@ -42,4 +42,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry-rails'
   spec.add_development_dependency 'activerecord'
   spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'rspec_junit_formatter'
 end

@@ -58,6 +58,7 @@ rspec-test: &rspec-test
     - *restore_checkout_cache
     - *restore_bundle_cache
     - *bundle_path
+    # restore_bundle_cacheができるまでの実験用
     - *bundle-install
     - *run-rspec
     - store_test_results:
