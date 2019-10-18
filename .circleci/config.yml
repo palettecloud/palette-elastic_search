@@ -5,6 +5,8 @@ defaults: &defaults
 deps-images: &deps-images
   docker:
     - image: 'quay.io/palettecloud/ruby-cron:v2.4.7'
+      environment:
+        TZ: Asia/Tokyo
 
 bundle-install: &bundle-install
   run:
@@ -58,8 +60,6 @@ rspec-test: &rspec-test
     - *restore_checkout_cache
     - *restore_bundle_cache
     - *bundle_path
-    # restore_bundle_cacheができるまでの実験用
-    - *bundle-install
     - *run-rspec
     - store_test_results:
         path: test-results
