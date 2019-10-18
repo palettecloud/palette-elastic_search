@@ -76,3 +76,5 @@ workflows:
     jobs:
       - build
       - test-rspec
+        requires:
+          - build
