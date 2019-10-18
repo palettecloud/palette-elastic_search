@@ -22,7 +22,19 @@ jobs:
       # Rspec
       - run:
           name: Rspec
-          command: bundle exec rspec
+          command: |
+            mkdir -p test-results/rspec
+            TESTFILES=$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings --timings-type=classname)
+            bundle exec rspec --profile 10 \
+              --format RspecJunitFormatter \
+              --out test-results/rspec/results_${CIRCLE_NODE_INDEX}.xml \
+              --format progress \
+              -- ${TESTFILES}
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+          destination: test-results
 
 
 workflows:
