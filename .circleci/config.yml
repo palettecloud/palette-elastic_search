@@ -1,42 +1,68 @@
+working_directory: &working_directory
+  ~/palette-elastic_search
+
 bundle-install: &bundle-install
   run:
     name: Bundle install
     command: |
       bundle check --path vendor/bundle || bundle install --path vendor/bundle --quiet
 
+bundle_cache_key: &bundle_cache_key bundle-v2-{{ checksum "Gemfile.lock" }}
+restore_bundle_cache: &restore_bundle_cache
+  restore_cache:
+    key: *bundle_cache_key
+
+bundle_path: &bundle_path
+  run: bundle --path vendor/bundle
+    
+
+checkout_cache_key: &checkout_cache_key v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+restore_checkout_cache: &restore_checkout_cache
+  restore_cache:
+    key: *checkout_cache_key
+
+run-rspec: &run-rspec
+  run:
+    name: Run Rspec
+    command: |
+      mkdir -p test-results/rspec
+      TESTFILES=$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings --timings-type=classname)
+      bundle exec rspec --profile 10 \
+        --format RspecJunitFormatter \
+        --out test-results/rspec/results_${CIRCLE_NODE_INDEX}.xml \
+        --format progress \
+        -- ${TESTFILES}
+
 version: 2
 jobs:
   build:
     docker:
       - image: 'quay.io/palettecloud/ruby-cron:v2.4.7'
-    working_directory: ~/palette
+    working_directory: *working_directory
     steps:
       - checkout
-      - restore_cache:
-          key: bundle-v2-{{ checksum "Gemfile.lock" }}
+      - save_cache:
+          key: *checkout_cache_key
+          paths: *working_directory
+      - *restore_bundle_cache
       - *bundle-install
       - save_cache:
-          key: bundle-v2-{{ checksum "Gemfile.lock" }}
-          paths: 
-            - ./vendor/bundle
+          key: *bundle_cache_key
+          paths:
+            - vendor/bundle
+
   test-rspec:
     docker:
       - image: 'quay.io/palettecloud/ruby-cron:v2.4.7'
-    working_directory: ~/palette
+    working_directory: *working_directory
     steps:
+      - attach_workspace:
+        at: .
       - checkout
-      - restore_cache:
-          key: bundle-v2-{{ checksum "Gemfile.lock" }}
-      - run:
-          name: Run Rspec
-          command: |
-            mkdir -p test-results/rspec
-            TESTFILES=$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings --timings-type=classname)
-            bundle exec rspec --profile 10 \
-              --format RspecJunitFormatter \
-              --out test-results/rspec/results_${CIRCLE_NODE_INDEX}.xml \
-              --format progress \
-              -- ${TESTFILES}
+      - *restore_checkout_cache
+      - *restore_bundle_cache
+      - *bundle_path
+      - *run-rspec
       - store_test_results:
           path: test-results
       - store_artifacts:
