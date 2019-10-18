@@ -48,7 +48,8 @@ chenge-tag: &echo-tag
       # NEW_TAG+=".$((${CIRCLE_TAG##*.} + 1))"
       # git tag $NEW_TAG
       # git push origin $NEW_TAG
-      echo "test"
+      git log
+      git config -l
 
 setting-build: &setting-build
   steps:
@@ -106,6 +107,6 @@ workflows:
       - tag-setting:
           requires:
             - test-rspec
-          filters:
-            branches:
-              only: master
+          # filters:
+          #   branches:
+          #     only: master
