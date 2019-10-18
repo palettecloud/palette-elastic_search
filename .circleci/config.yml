@@ -53,7 +53,7 @@ setting-build: &setting-build
 rspec-test: &rspec-test
   steps:
     - attach_workspace:
-      at: .
+        at: .
     - checkout
     - *restore_checkout_cache
     - *restore_bundle_cache
