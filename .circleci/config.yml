@@ -12,7 +12,7 @@ bundle-install: &bundle-install
     command: |
       bundle check --path vendor/bundle || bundle install --path vendor/bundle --quiet
 
-bundle_cache_key: &bundle_cache_key bundle-v2-{{ checksum "Gemfile.lock" }}
+bundle_cache_key: &bundle_cache_key bundle-v1-{{ checksum "Gemfile.lock" }}
 restore_bundle_cache: &restore_bundle_cache
   restore_cache:
     key: *bundle_cache_key
@@ -58,6 +58,7 @@ rspec-test: &rspec-test
     - *restore_checkout_cache
     - *restore_bundle_cache
     - *bundle_path
+    - *bundle-install
     - *run-rspec
     - store_test_results:
         path: test-results
