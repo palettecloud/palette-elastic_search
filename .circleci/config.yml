@@ -48,10 +48,7 @@ tag-setting: &tag-setting
       # NEW_TAG+=".$((${CIRCLE_TAG##*.} + 1))"
       # git tag $NEW_TAG
       # git push origin $NEW_TAG
-      git config user.email "akutoyuuki@gmail.com"
-      git config user.name "rei-akuto"
-      git config -l
-      git log
+      git --version
 
 setting-build: &setting-build
   steps:
