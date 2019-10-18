@@ -11,7 +11,7 @@ jobs:
       - run:
         name: Bundle install
         command: |
-          bundle check --path vendor/bundle || bundle install --path vender/bundle
+          bundle check --path vendor/bundle || bundle install --path vendor/bundle
       - save_cache:
           key: bundle-v2-{{ checksum "Gemfile.lock" }}
           paths: 
@@ -46,6 +46,4 @@ workflows:
   base:
     jobs:
       - build
-      - test-rspec:
-        requires:
-          - build
+      - test-rspec
