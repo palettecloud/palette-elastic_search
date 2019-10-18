@@ -40,16 +40,18 @@ run-rspec: &run-rspec
         --format progress \
         -- ${TESTFILES}
 
-chenge-tag: &echo-tag
+tag-setting: &tag-setting
   run:
-    name: Echo Tag
+    name: Release Tag
     command: |
       # NEW_TAG="${CIRCLE_TAG%.*}"
       # NEW_TAG+=".$((${CIRCLE_TAG##*.} + 1))"
       # git tag $NEW_TAG
       # git push origin $NEW_TAG
-      git log
+      git config user.email "akutoyuuki@gmail.com"
+      git config user.name "rei-akuto"
       git config -l
+      git log
 
 setting-build: &setting-build
   steps:
@@ -78,9 +80,9 @@ rspec-test: &rspec-test
         path: test-results
         destination: test-results
 
-setting-tag: &setting-tag
+release-tag: &release-tag
   steps:
-    - *echo-tag
+    - *tag-setting
 
 version: 2
 jobs:
@@ -92,9 +94,9 @@ jobs:
     <<: [*defaults, *deps-images]
     <<: *rspec-test
 
-  tag-setting:
+  tag-release:
     <<: [*defaults, *deps-images]
-    <<: *setting-tag
+    <<: *release-tag
 
 workflows:
   version: 2
@@ -104,7 +106,7 @@ workflows:
       - test-rspec:
           requires:
             - build-setting
-      - tag-setting:
+      - tag-release:
           requires:
             - test-rspec
           # filters:
