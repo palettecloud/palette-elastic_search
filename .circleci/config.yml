@@ -82,5 +82,5 @@ workflows:
     jobs:
       - build-setting
       - test-rspec:
-        requires:
-          - build-setting
+          requires:
+            - build-setting
