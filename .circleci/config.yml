@@ -6,10 +6,16 @@ jobs:
     working_directory: ~/palette
     steps:
       - checkout
-      - save_cache:
-          name: save docker image cache
+      - restore_cache:
           key: bundle-v2-{{ checksum "Gemfile.lock" }}
-          paths: ./vendor/bundle
+      - run:
+        name: Bundle install
+        command: |
+          bundle check --path vendor/bundle || bundle install --path vender/bundle
+      - save_cache:
+          key: bundle-v2-{{ checksum "Gemfile.lock" }}
+          paths: 
+            - ./vendor/bundle
   test-rspec:
     docker:
       - image: 'quay.io/palettecloud/ruby-cron:v2.4.7'
@@ -17,11 +23,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          name: restore docker image cache
           key: bundle-v2-{{ checksum "Gemfile.lock" }}
-      # Rspec
       - run:
-          name: Rspec
+          name: Run Rspec
           command: |
             mkdir -p test-results/rspec
             TESTFILES=$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings --timings-type=classname)
@@ -43,3 +47,5 @@ workflows:
     jobs:
       - build
       - test-rspec
+        requires:
+          - build
