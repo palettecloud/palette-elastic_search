@@ -1,6 +1,6 @@
 defaults: &defalut
   working_directory: &working_directory
-  ~/palette-elastic_search
+    ~/palette-elastic_search
 
 deps-images: &deps-images
   docker:
