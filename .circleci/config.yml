@@ -44,7 +44,7 @@ echo-tag: &echo-tag
   run:
     name: Echo Tag
     command: |
-      echo ${CIRCLE_TAG}
+      echo $CIRCLE_TAG
 
 setting-build: &setting-build
   steps:
