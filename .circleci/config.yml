@@ -40,16 +40,15 @@ run-rspec: &run-rspec
         --format progress \
         -- ${TESTFILES}
 
-echo-tag: &echo-tag
+chenge-tag: &echo-tag
   run:
     name: Echo Tag
     command: |
-      # test="${CIRCLE_TAG%.*}"
-      # test+="$((${CIRCLE_TAG##*.} + 1))"
-      TEST_TAG="v0.4.10"
-      TEST="${TEST_TAG%.*}"
-      TEST+="$((${TEST_TAG##*.} + 1))"
-      echo "${TEST}"
+      # NEW_TAG="${CIRCLE_TAG%.*}"
+      # NEW_TAG+=".$((${CIRCLE_TAG##*.} + 1))"
+      # git tag $NEW_TAG
+      # git push origin $NEW_TAG
+      echo "test"
 
 setting-build: &setting-build
   steps:
@@ -107,3 +106,6 @@ workflows:
       - tag-setting:
           requires:
             - test-rspec
+          filters:
+            branches:
+              only: master
