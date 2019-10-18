@@ -1,3 +1,9 @@
+bundle-install: &bundle-install
+  run:
+    name: Bundle install
+    command: |
+      bundle check --path vendor/bundle || bundle install --path vendor/bundle --quiet
+
 version: 2
 jobs:
   build:
@@ -8,10 +14,7 @@ jobs:
       - checkout
       - restore_cache:
           key: bundle-v2-{{ checksum "Gemfile.lock" }}
-      - run:
-        name: Bundle install
-        command: |
-          bundle check --path vendor/bundle || bundle install --path vendor/bundle
+      - *bundle-install
       - save_cache:
           key: bundle-v2-{{ checksum "Gemfile.lock" }}
           paths: 
