@@ -49,7 +49,7 @@ echo-tag: &echo-tag
       TEST_TAG="v0.4.10"
       TEST="${TEST_TAG%.*}"
       TEST+="$((${TEST_TAG##*.} + 1))"
-      echo "${TEST_TAG}"
+      echo "${TEST}"
 
 setting-build: &setting-build
   steps:
