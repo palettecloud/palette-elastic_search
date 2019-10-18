@@ -1,4 +1,4 @@
-defaults: &defaluts
+defaults: &defaults
   working_directory: &working_directory
     ~/palette-elastic_search
 
