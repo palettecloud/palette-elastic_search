@@ -40,6 +40,12 @@ run-rspec: &run-rspec
         --format progress \
         -- ${TESTFILES}
 
+echo-tag: &echo-tag
+  run:
+    name: Echo Tag
+    command: |
+      echo ${CIRCLE_TAG}
+
 setting-build: &setting-build
   steps:
     - checkout
@@ -67,6 +73,10 @@ rspec-test: &rspec-test
         path: test-results
         destination: test-results
 
+setting-tag: &setting-tag
+  steps:
+    - *echo-tag
+
 version: 2
 jobs:
   build-setting:
@@ -77,6 +87,9 @@ jobs:
     <<: [*defaults, *deps-images]
     <<: *rspec-test
 
+  tag-setting:
+    <<: [*defaults, *deps-images]
+    <<: *setting-tag
 
 workflows:
   version: 2
@@ -86,3 +99,6 @@ workflows:
       - test-rspec:
           requires:
             - build-setting
+      - tag-setting:
+          requires:
+            - test-rspec
