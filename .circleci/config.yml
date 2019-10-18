@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: 'quay.io/palettecloud/ruby-cron:v2.4.7'
+    working_directory: ~/palette
+    steps:
+      - checkout
+      - save_cache:
+          name: save docker image cache
+          key: bundle-v2-{{ checksum "Gemfile.lock" }}
+          paths: ./vendor/bundle
+  test-rspec:
+    docker:
+      - image: 'quay.io/palettecloud/ruby-cron:v2.4.7'
+    working_directory: ~/palette
+    steps:
+      - checkout
+      - restore_cache:
+          name: restore docker image cache
+          key: bundle-v2-{{ checksum "Gemfile.lock" }}
+      # Rspec
+      - run:
+          name: Rspec
+          command: bundle exec rspec
+
+
+workflows:
+  version: 2
+  base:
+    jobs:
+      - build
+      - test-rspec
