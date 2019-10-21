@@ -24,7 +24,7 @@ module Palette
 
             self.search.definition.delete :scroll
             self.search.definition.update size: batch_size
-      
+
             unless block_given?
               return to_enum(:find_in_batches, batch_size: batch_size) do
                 batch_size > 0 ? (self.results.total - 1) / batch_size + 1 : 0
@@ -47,6 +47,5 @@ module Palette
         RUBY
       end
     end
-    ::Elasticsearch::Model::Response::Response.__send__ :include, Scrolling
   end
 end

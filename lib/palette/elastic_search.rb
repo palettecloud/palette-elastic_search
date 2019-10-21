@@ -16,6 +16,8 @@ module Palette
     autoload :NewRelicLoggingAdapter, 'palette/elastic_search/adapters/new_relic_logging_adapter'
     autoload :StdLoggingAdapter, 'palette/elastic_search/adapters/std_logging_adapter'
 
+    ::Elasticsearch::Model::Response::Response.__send__ :include, Scrolling
+
     def self.configuration
       Configuration.instance
     end
