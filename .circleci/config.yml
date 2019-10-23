@@ -46,12 +46,12 @@ tag-setting: &tag-setting
     command: |
       # NEW_TAG="${CIRCLE_TAG%.*}"
       # NEW_TAG+=".$((${CIRCLE_TAG##*.} + 1))"
+      git clone git@github.com:machikoe/palette-elastic_search.git
       cd palette-elastic_search
-      # git tag $NEW_TAG
-      # git push origin $NEW_TAG
       # git config user.name=$GIT_USER_NAME
       # git config user.email=$GIT_USER_EMAIL
-      git branch -a
+      # git tag $NEW_TAG
+      # git push origin $NEW_TAG
       git config -l
 
 skip-ssh-command: &skip-ssh-command
