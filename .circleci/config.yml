@@ -47,21 +47,23 @@ tag-setting: &tag-setting
       VERSION=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
       NEW_TAG=v${VERSION}
       echo $NEW_TAG
+      # git config user.name $GIT_USER_NAME
+      # git config user.email $GIT_USER_EMAIL
+      # git tag $NEW_TAG
+      # git push origin $NEW_TAG
 
       # file自体書き換える場合
       OLD_TAG=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
       NEW_TAG="${OLD_TAG%.*}"
       NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
-      OLD_TEXT=$(grep -e V lib/palette/elastic_search/version.rb)
-      NEW_TEXT=`echo $ALL_TEXT | sed s/$OLD_TAG/$NEW_TAG/g`
-      ALL_TEXT=$(sed s/$TEXT/$NEW_TEXT/ lib/palette/elastic_search/version.rb)
+      ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ lib/palette/elastic_search/version.rb)
       echo $ALL_TEXT
       # echo $ALL_TEXT > lib/palette/elastic_search/version.rb
+      # git config user.name $GIT_USER_NAME
+      # git config user.email $GIT_USER_EMAIL
       # git add lib/palette/elastic_search/version.rb
       # git commit -m "version up"
       # git push origin master
-      # git tag $NEW_TAG
-      # git push origin $NEW_TAG
 
 setting-build: &setting-build
   steps:
