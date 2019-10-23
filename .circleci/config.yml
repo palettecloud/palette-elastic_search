@@ -4,7 +4,7 @@ defaults: &defaults
 
 deps-images: &deps-images
   docker:
-    - image: 'circleci/node:10.15.0-stretch-browsers'
+    - image: 'circleci/ruby:2.7.0-node-browsers-legacy'
       environment:
         TZ: Asia/Tokyo
 
@@ -14,7 +14,7 @@ bundle-install: &bundle-install
     command: |
       bundle check --path vendor/bundle || bundle install --path vendor/bundle --quiet
 
-bundle_cache_key: &bundle_cache_key bundle-v3-{{ checksum "Gemfile.lock" }}
+bundle_cache_key: &bundle_cache_key bundle-v1-{{ checksum "Gemfile.lock" }}
 restore_bundle_cache: &restore_bundle_cache
   restore_cache:
     key: *bundle_cache_key
