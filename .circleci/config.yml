@@ -46,8 +46,10 @@ tag-setting: &tag-setting
     command: |
       # NEW_TAG="${CIRCLE_TAG%.*}"
       # NEW_TAG+=".$((${CIRCLE_TAG##*.} + 1))"
-      # git clone git@github.com:rei-akuto/palette-elastic_search.git
-      # cd palette-elastic_search
+      git clone git@github.com:rei-akuto/palette-elastic_search.git
+      cd palette-elastic_search
+      ls
+      pwd
       # git tag $NEW_TAG
       # git push origin $NEW_TAG
       git config user.name = $GIT_USER_NAME
