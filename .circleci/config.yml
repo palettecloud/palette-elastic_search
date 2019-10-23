@@ -47,7 +47,7 @@ tag-setting: &tag-setting
       VERSION=$(grep -e V lib/palette/elastic_search/version.rb)
       arr=(`echo $VERSION`)
       NEW_TAG=${arr[2]}
-      echo NEW_TAG
+      echo $NEW_TAG
       # NEW_TAG="${CIRCLE_TAG%.*}"
       # NEW_TAG+=".$((${CIRCLE_TAG##*.} + 1))"
       # git tag $NEW_TAG
