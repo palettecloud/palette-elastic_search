@@ -46,8 +46,8 @@ tag-setting: &tag-setting
     command: |
       # NEW_TAG="${CIRCLE_TAG%.*}"
       # NEW_TAG+=".$((${CIRCLE_TAG##*.} + 1))"
-      git clone git@github.com:machikoe/palette-elastic_search.git
-      cd palette-elastic_search
+      # git clone git@github.com:machikoe/palette-elastic_search.git
+      # cd palette-elastic_search
       # git config user.name=$GIT_USER_NAME
       # git config user.email=$GIT_USER_EMAIL
       # git tag $NEW_TAG
@@ -92,6 +92,15 @@ rspec-test: &rspec-test
 
 release-tag: &release-tag
   steps:
+    - attach_workspace:
+        at: .
+    - checkout
+    - run: pwd
+    - run: ls
+    - *restore_checkout_cache
+    - *restore_bundle_cache
+    - run: pwd
+    - run: ls
     - *skip-ssh-command
     - *tag-setting
 
