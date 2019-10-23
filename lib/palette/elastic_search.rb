@@ -11,9 +11,12 @@ module Palette
     autoload :QueryFactory, 'palette/elastic_search/query_factory'
     autoload :Configuration, 'palette/elastic_search/configuration'
     autoload :Indexing, 'palette/elastic_search/indexing'
+    autoload :Scrolling, 'palette/elastic_search/scrolling'
     autoload :Logger, 'palette/elastic_search/logger'
     autoload :NewRelicLoggingAdapter, 'palette/elastic_search/adapters/new_relic_logging_adapter'
     autoload :StdLoggingAdapter, 'palette/elastic_search/adapters/std_logging_adapter'
+
+    ::Elasticsearch::Model::Response::Response.__send__ :include, Scrolling
 
     def self.configuration
       Configuration.instance
