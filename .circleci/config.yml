@@ -53,14 +53,7 @@ tag-setting: &tag-setting
       # git tag $NEW_TAG
       # git push origin $NEW_TAG
       git config -l
-
-skip-ssh-command: &skip-ssh-command
-  run:
-    name: Skip ssh Command
-    command: |
-      mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-      
-
+      git branch -a
 
 setting-build: &setting-build
   steps:
@@ -95,13 +88,8 @@ release-tag: &release-tag
     - attach_workspace:
         at: .
     - checkout
-    - run: pwd
-    - run: ls
     - *restore_checkout_cache
     - *restore_bundle_cache
-    - run: pwd
-    - run: ls
-    - *skip-ssh-command
     - *tag-setting
 
 version: 2
