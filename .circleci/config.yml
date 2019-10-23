@@ -4,7 +4,7 @@ defaults: &defaults
 
 deps-images: &deps-images
   docker:
-    - image: 'circleci/ruby:2.4.2-jessie-node'
+    - image: 'circleci/ruby:2.4.2-jessie'
       environment:
         TZ: Asia/Tokyo
 
