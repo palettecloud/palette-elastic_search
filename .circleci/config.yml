@@ -1,0 +1,106 @@
+defaults: &defaults
+  working_directory: &working_directory
+    ~/palette-elastic_search
+
+deps-images: &deps-images
+  docker:
+    - image: 'circleci/ruby:2.6.0'
+      environment:
+        TZ: Asia/Tokyo
+
+install-bundler: &install-bundler
+  run:
+    name: gem Install Bundler
+    command: |
+      gem install bundler
+
+bundle-install: &bundle-install
+  run:
+    name: Bundle install
+    command: |
+      bundle check --path vendor/bundle || bundle install --path vendor/bundle --quiet
+
+bundle_path: &bundle_path
+  run: bundle --path vendor/bundle
+
+checkout_cache_key: &checkout_cache_key v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+restore_checkout_cache: &restore_checkout_cache
+  restore_cache:
+    key: *checkout_cache_key
+
+run-rspec: &run-rspec
+  run:
+    name: Run Rspec
+    command: |
+      mkdir -p test-results/rspec
+      bundle exec rspec --profile 10 \
+        --format RspecJunitFormatter \
+        --out test-results/rspec/results_${CIRCLE_NODE_INDEX}.xml \
+        --format progress \
+
+version-setting: &version-setting
+  run:
+    name: Version Setting
+    command: |
+      git config user.name $GIT_USER_NAME
+      git config user.email $GIT_USER_EMAIL
+      # 手動で変更した場合はmerge時messageに[tag release]をつける
+      commitmessage=$(git log --pretty=%B -n 1)
+      if [[ $commitmessage = *"[tag release]"* ]]; then
+        NEW_TAG=v$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
+      else
+        OLD_TAG=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+        NEW_TAG="${OLD_TAG%.*}"
+        NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
+        ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ lib/palette/elastic_search/version.rb)
+        echo $ALL_TEXT > lib/palette/elastic_search/version.rb
+        git add lib/palette/elastic_search/version.rb
+        git commit -m "[ci skip] [tag release] version up"
+        git push origin master
+      fi
+
+rspec-test: &rspec-test
+  steps:
+    - attach_workspace:
+        at: .
+    - checkout
+    - *install-bundler
+    - *bundle_path
+    - *bundle-install
+    - *run-rspec
+    - store_test_results:
+        path: test-results
+    - store_artifacts:
+        path: test-results
+        destination: test-results
+
+release-tag: &release-tag
+  steps:
+    - attach_workspace:
+        at: .
+    - checkout
+    - *version-setting
+
+version: 2
+jobs:
+  test-rspec:
+    <<: [*defaults, *deps-images]
+    <<: *rspec-test
+
+  tag-release:
+    <<: [*defaults, *deps-images]
+    <<: *release-tag
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - test-rspec
+      - tag-release:
+          requires:
+            - test-rspec
+          filters:
+            branches:
+              only: master
