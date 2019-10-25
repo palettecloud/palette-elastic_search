@@ -1,4 +1,5 @@
 require "bundler/setup"
+require 'webmock/rspec'
 require "palette/elastic_search"
 require 'pry'
 require 'user'
