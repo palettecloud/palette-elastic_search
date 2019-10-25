@@ -60,7 +60,7 @@ tag-setting: &tag-setting
       git tag $NEW_TAG
       git push origin $NEW_TAG
 
-      # version.rbを自動修正する場合
+      # version.rbを自動修正する場合(全部マイナーバーションが更新されてしまうのでメジャーを変える場合-1,0等スタートが必要)
       # OLD_TAG=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
       # NEW_TAG="${OLD_TAG%.*}"
       # NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
@@ -73,6 +73,8 @@ tag-setting: &tag-setting
       # git add lib/palette/elastic_search/version.rb
       # git commit -m "version up"
       # git push origin master
+      # git tag $NEW_TAG
+      # git push origin $NEW_TAG
 
 setting-build: &setting-build
   steps:
