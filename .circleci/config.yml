@@ -1,0 +1,142 @@
+defaults: &defaults
+  working_directory: &working_directory
+    ~/palette-elastic_search
+
+deps-images: &deps-images
+  docker:
+    - image: 'circleci/ruby:2.6.0-node-browsers'
+      environment:
+        TZ: Asia/Tokyo
+
+bundler-install: &bundler-install
+  run:
+    name: Bundler install
+    command: |
+      gem install bundler
+
+bundle-install: &bundle-install
+  run:
+    name: Bundle install
+    command: |
+      bundle check --path vendor/bundle || bundle install --path vendor/bundle --quiet
+
+bundle_cache_key: &bundle_cache_key bundle-v1-{{ checksum "Gemfile.lock" }}
+restore_bundle_cache: &restore_bundle_cache
+  restore_cache:
+    key: *bundle_cache_key
+
+bundle_path: &bundle_path
+  run: bundle --path vendor/bundle
+    
+
+checkout_cache_key: &checkout_cache_key v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+restore_checkout_cache: &restore_checkout_cache
+  restore_cache:
+    key: *checkout_cache_key
+
+run-rspec: &run-rspec
+  run:
+    name: Run Rspec
+    command: |
+      mkdir -p test-results/rspec
+      TESTFILES=$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings --timings-type=classname)
+      bundle exec rspec --profile 10 \
+        --format RspecJunitFormatter \
+        --out test-results/rspec/results_${CIRCLE_NODE_INDEX}.xml \
+        --format progress \
+        -- ${TESTFILES}
+
+version-setting: &version-setting
+  run:
+    name: Release Tag
+    command: |
+      # 手動で変更した場合はmerge時messageに[tag release]をつける
+      commitmessage=$(git log --pretty=%B -n 1)
+      if [[ $commitmessage = *"[tag release]"* ]]; then
+        NEW_TAG=v$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+        # 環境変数として設定する必要あり
+        git config user.name $GIT_USER_NAME
+        git config user.email $GIT_USER_EMAIL
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
+      else
+        OLD_TAG=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+        NEW_TAG="${OLD_TAG%.*}"
+        NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
+        ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ lib/palette/elastic_search/version.rb)
+        echo $ALL_TEXT > lib/palette/elastic_search/version.rb
+        git config user.name $GIT_USER_NAME
+        git config user.email $GIT_USER_EMAIL
+        git add lib/palette/elastic_search/version.rb
+        git commit -m "[tag release] version up"
+        git push origin master
+      fi
+
+setting-build: &setting-build
+  steps:
+    - checkout
+    - save_cache:
+        key: *checkout_cache_key
+        paths: *working_directory
+    - *restore_bundle_cache
+    - *bundler-install
+    - *bundle-install
+    - save_cache:
+        key: *bundle_cache_key
+        paths:
+          - vendor/bundle
+
+rspec-test: &rspec-test
+  steps:
+    - attach_workspace:
+        at: .
+    - checkout
+    - *restore_checkout_cache
+    - *restore_bundle_cache
+    - *bundler-install
+    - *bundle_path
+    - *run-rspec
+    - store_test_results:
+        path: test-results
+    - store_artifacts:
+        path: test-results
+        destination: test-results
+
+release-tag: &release-tag
+  steps:
+    - attach_workspace:
+        at: .
+    - checkout
+    - *restore_checkout_cache
+    - *restore_bundle_cache
+    - *version-setting
+
+version: 2
+jobs:
+  build-setting:
+    <<: [*defaults, *deps-images]
+    <<: *setting-build
+
+  test-rspec:
+    <<: [*defaults, *deps-images]
+    <<: *rspec-test
+
+  tag-release:
+    <<: [*defaults, *deps-images]
+    <<: *release-tag
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build-setting
+      - test-rspec:
+          requires:
+            - build-setting
+      - tag-release:
+          requires:
+            - build-setting
+            - test-rspec
+          filters:
+            branches:
+              only: master
