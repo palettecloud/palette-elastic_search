@@ -81,6 +81,7 @@ setting-build: &setting-build
         key: *checkout_cache_key
         paths: *working_directory
     - *restore_bundle_cache
+    - *bundler-install
     - *bundle-install
     - save_cache:
         key: *bundle_cache_key
@@ -94,6 +95,7 @@ rspec-test: &rspec-test
     - checkout
     - *restore_checkout_cache
     - *restore_bundle_cache
+    - *bundler-install
     - *bundle_path
     - *run-rspec
     - store_test_results:
@@ -114,11 +116,11 @@ release-tag: &release-tag
 version: 2
 jobs:
   build-setting:
-    <<: [*defaults, *deps-images, *bundler-install]
+    <<: [*defaults, *deps-images]
     <<: *setting-build
 
   test-rspec:
-    <<: [*defaults, *deps-images, *bundler-install]
+    <<: [*defaults, *deps-images]
     <<: *rspec-test
 
   tag-release:
