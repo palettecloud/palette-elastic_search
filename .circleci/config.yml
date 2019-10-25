@@ -42,24 +42,29 @@ version-setting: &version-setting
   run:
     name: Version Setting
     command: |
-      git config user.name $GIT_USER_NAME
-      git config user.email $GIT_USER_EMAIL
-      # 手動で変更した場合はmerge時messageに[tag release]をつける
-      commitmessage=$(git log --pretty=%B -n 1)
-      if [[ $commitmessage = *"[tag release]"* ]]; then
-        NEW_TAG=v$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
-        git tag $NEW_TAG
-        git push origin $NEW_TAG
-      else
-        OLD_TAG=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
-        NEW_TAG="${OLD_TAG%.*}"
-        NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
-        ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ lib/palette/elastic_search/version.rb)
-        echo $ALL_TEXT > lib/palette/elastic_search/version.rb
-        git add lib/palette/elastic_search/version.rb
-        git commit -m "[ci skip] [tag release] version up"
-        git push origin master
-      fi
+      # git config user.name $GIT_USER_NAME
+      # git config user.email $GIT_USER_EMAIL
+      # # 手動で変更した場合はmerge時messageに[tag release]をつける
+      # commitmessage=$(git log --pretty=%B -n 1)
+      # if [[ $commitmessage = *"[tag release]"* ]]; then
+      #   NEW_TAG=v$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+      #   git tag $NEW_TAG
+      #   git push origin $NEW_TAG
+      # else
+      #   OLD_TAG=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+      #   NEW_TAG="${OLD_TAG%.*}"
+      #   NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
+      #   ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ lib/palette/elastic_search/version.rb)
+      #   echo $ALL_TEXT > lib/palette/elastic_search/version.rb
+      #   git add lib/palette/elastic_search/version.rb
+      #   git commit -m "[ci skip] [tag release] version up"
+      #   git push origin master
+      # fi
+      OLD_TAG=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+      NEW_TAG="${OLD_TAG%.*}"
+      NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
+      ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ lib/palette/elastic_search/version.rb)
+      echo $ALL_TEXT
 
 rspec-test: &rspec-test
   steps:
@@ -101,6 +106,3 @@ workflows:
       - tag-release:
           requires:
             - test-rspec
-          filters:
-            branches:
-              only: master
