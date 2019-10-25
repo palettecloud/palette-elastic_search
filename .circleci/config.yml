@@ -12,6 +12,7 @@ bundle-install: &bundle-install
   run:
     name: Bundle install
     command: |
+      gem install bundler
       bundle check --path vendor/bundle || bundle install --path vendor/bundle --quiet
 
 bundle_cache_key: &bundle_cache_key bundle-v3-{{ checksum "Gemfile.lock" }}
