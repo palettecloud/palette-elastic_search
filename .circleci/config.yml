@@ -46,13 +46,13 @@ run-rspec: &run-rspec
         --format progress \
         -- ${TESTFILES}
 
-tag-setting: &tag-setting
+version-setting: &version-setting
   run:
     name: Release Tag
     command: |
-      # 手動で変更した場合はmerge時messageに[tag-release]をつける
+      # 手動で変更した場合はmerge時messageに[tag release]をつける
       commitmessage=$(git log --pretty=%B -n 1)
-      if [[ $commitmessage = *"[tag-release]"* ]]; then
+      if [[ $commitmessage = *"[tag release]"* ]]; then
         NEW_TAG=v$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
         # 環境変数として設定する必要あり
         git config user.name $GIT_USER_NAME
@@ -68,7 +68,7 @@ tag-setting: &tag-setting
         git config user.name $GIT_USER_NAME
         git config user.email $GIT_USER_EMAIL
         git add lib/palette/elastic_search/version.rb
-        git commit -m "[tag-release] version up"
+        git commit -m "[tag release] version up"
         git push origin master
       fi
 
@@ -109,7 +109,7 @@ release-tag: &release-tag
     - checkout
     - *restore_checkout_cache
     - *restore_bundle_cache
-    - *tag-setting
+    - *version-setting
 
 version: 2
 jobs:
