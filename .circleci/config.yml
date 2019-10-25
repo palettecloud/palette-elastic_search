@@ -77,7 +77,6 @@ tag-setting: &tag-setting
 setting-build: &setting-build
   steps:
     - checkout
-    - *bundler-install
     - save_cache:
         key: *checkout_cache_key
         paths: *working_directory
@@ -115,11 +114,11 @@ release-tag: &release-tag
 version: 2
 jobs:
   build-setting:
-    <<: [*defaults, *deps-images]
+    <<: [*defaults, *deps-images, *bundler-install]
     <<: *setting-build
 
   test-rspec:
-    <<: [*defaults, *deps-images]
+    <<: [*defaults, *deps-images, *bundler-install]
     <<: *rspec-test
 
   tag-release:
