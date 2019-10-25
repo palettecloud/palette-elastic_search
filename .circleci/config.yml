@@ -8,9 +8,9 @@ deps-images: &deps-images
       environment:
         TZ: Asia/Tokyo
 
-bundler-install: &bundler-install
+install-bundler: &install-bundler
   run:
-    name: Bundler install
+    name: gem Install Bundler
     command: |
       gem install bundler
 
@@ -48,7 +48,7 @@ run-rspec: &run-rspec
 
 version-setting: &version-setting
   run:
-    name: Release Tag
+    name: Version Setting
     command: |
       # 手動で変更した場合はmerge時messageに[tag release]をつける
       commitmessage=$(git log --pretty=%B -n 1)
@@ -79,7 +79,7 @@ setting-build: &setting-build
         key: *checkout_cache_key
         paths: *working_directory
     - *restore_bundle_cache
-    - *bundler-install
+    - *install-bundler
     - *bundle-install
     - save_cache:
         key: *bundle_cache_key
@@ -93,7 +93,7 @@ rspec-test: &rspec-test
     - checkout
     - *restore_checkout_cache
     - *restore_bundle_cache
-    - *bundler-install
+    - *install-bundler
     - *bundle_path
     - *run-rspec
     - store_test_results:
