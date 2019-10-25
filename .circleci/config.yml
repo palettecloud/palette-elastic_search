@@ -71,8 +71,8 @@ rspec-test: &rspec-test
     - attach_workspace:
         at: .
     - checkout
-    - *bundle_path
     - *install-bundler
+    - *bundle_path
     - *bundle-install
     - *run-rspec
     - store_test_results:
