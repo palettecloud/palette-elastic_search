@@ -58,6 +58,28 @@ tag-setting: &tag-setting
       git tag $NEW_TAG
       git push origin $NEW_TAG
 
+      # # version.rbを自動変更する場合
+      # # (メジャーバージョンは"手動変更かつmerge時commitに[tag-release]"または"マイナーバージョンを-1で設定"が必要)
+      # commitmessage=$(git log --pretty=%B -n 1)
+      # if [[ $commitmessage = *"[tag-release]"* ]]; then
+      #   NEW_TAG=v$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+      #   git config user.name $GIT_USER_NAME
+      #   git config user.email $GIT_USER_EMAIL
+      #   git tag $NEW_TAG
+      #   git push origin $NEW_TAG
+      # else
+      #   OLD_TAG=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+      #   NEW_TAG="${OLD_TAG%.*}"
+      #   NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
+      #   ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ lib/palette/elastic_search/version.rb)
+      #   echo $ALL_TEXT > lib/palette/elastic_search/version.rb
+      #   git config user.name $GIT_USER_NAME
+      #   git config user.email $GIT_USER_EMAIL
+      #   git add lib/palette/elastic_search/version.rb
+      #   git commit -m "[tag-release]"
+      #   git push origin master
+      # fi
+
 setting-build: &setting-build
   steps:
     - checkout
