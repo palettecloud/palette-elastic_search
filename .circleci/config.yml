@@ -8,11 +8,16 @@ deps-images: &deps-images
       environment:
         TZ: Asia/Tokyo
 
+bundler-install: &bundler-install
+  run:
+    name: Bundler install
+    command: |
+      gem install bundler
+
 bundle-install: &bundle-install
   run:
     name: Bundle install
     command: |
-      gem install bundler
       bundle check --path vendor/bundle || bundle install --path vendor/bundle --quiet
 
 bundle_cache_key: &bundle_cache_key bundle-v3-{{ checksum "Gemfile.lock" }}
@@ -72,6 +77,7 @@ tag-setting: &tag-setting
 setting-build: &setting-build
   steps:
     - checkout
+    - *bundler-install
     - save_cache:
         key: *checkout_cache_key
         paths: *working_directory
