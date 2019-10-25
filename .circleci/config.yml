@@ -36,7 +36,8 @@ run-rspec: &run-rspec
       bundle exec rspec --profile 10 \
         --format RspecJunitFormatter \
         --out test-results/rspec/results_${CIRCLE_NODE_INDEX}.xml \
-        --format progress
+        --format progress \
+        -- .
 
 version-setting: &version-setting
   run:
