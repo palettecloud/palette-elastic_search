@@ -1,6 +1,5 @@
 /.bundle/
 /.yardoc
-/Gemfile.lock
 /_yardoc/
 /coverage/
 /doc/
@@ -9,6 +8,8 @@
 /tmp/
 /.idea
 /vendor/bundle
+
+.DS_Store
 
 # rspec failure tracking
 .rspec_status
