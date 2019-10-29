@@ -61,7 +61,7 @@ version-setting: &version-setting
         ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ lib/palette/elastic_search/version.rb)
         echo "$ALL_TEXT" > lib/palette/elastic_search/version.rb
         git add lib/palette/elastic_search/version.rb
-        git commit -m "[ci skip] [tag release] version up"
+        git commit -m "[tag release] version up"
         git push origin master
       fi
 
