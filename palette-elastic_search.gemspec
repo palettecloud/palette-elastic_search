@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{elastic-model based search library}
   spec.description   = %q{elastic-model based search library}
-  spec.homepage      = "https://github.com/machikoe/palette-elastic_search"
+  spec.homepage      = "https://github.com/palettecloud/palette-elastic_search"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
