@@ -9,7 +9,7 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'palette-elastic_search', github: 'machikoe/palette-elastic_search'
+gem 'palette-elastic_search', github: 'palettecloud/palette-elastic_search'
 ```
 
 And then execute:
