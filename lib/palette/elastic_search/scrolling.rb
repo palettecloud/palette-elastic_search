@@ -4,7 +4,7 @@ module Palette
       def self.included(base)
         base.class_eval <<-RUBY, __FILE__, __LINE__ + 1
           def find_in_batches(batch_size: 1000)
-            scroll = '1m'
+            scroll = '5m'
             scroll_request = Class.new do
               attr_reader :klass, :options
       
