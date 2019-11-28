@@ -10,11 +10,11 @@ RSpec.describe Palette::ElasticSearch::Scrolling do
       scroll_stub
     end
     let(:search_stub) do
-      stub_request(:get, "http://dummy-host/development_sample_database_users/user/_search?preference=_primary_first&scroll=1m&size=1")
+      stub_request(:get, "http://dummy-host/development_sample_database_users/user/_search?preference=_primary_first&scroll=5m&size=1")
         .to_return(status: 200, body: search_stub_response.to_json, headers: {content_type: 'application/json'})
     end
     let(:scroll_stub) do
-      stub_request(:get, "http://dummy-host/_search/scroll?scroll=1m&scroll_id=DXF1ZXJ5QW5kRmV0Y2gBAAAAAAAAiWcWNkw0MXluZE9TWnF4UHJfRml6aVBDZw==")
+      stub_request(:get, "http://dummy-host/_search/scroll?scroll=5m&scroll_id=DXF1ZXJ5QW5kRmV0Y2gBAAAAAAAAiWcWNkw0MXluZE9TWnF4UHJfRml6aVBDZw==")
         .to_return(status: 200, body: scroll_stub_response.to_json, headers: {content_type: 'application/json'})
     end
     let(:search_stub_response) do
