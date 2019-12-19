@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    palette-elastic_search (0.4.11)
+    palette-elastic_search (0.4.15)
       activesupport
       elasticsearch-model (~> 5.0)
       elasticsearch-rails (~> 5.0)
@@ -58,10 +58,10 @@ GEM
       faraday
       multi_json
     erubi (1.9.0)
-    faraday (0.17.0)
+    faraday (0.17.1)
       multipart-post (>= 1.2, < 3)
     hashdiff (1.0.0)
-    hashie (3.6.0)
+    hashie (4.0.0)
     i18n (1.7.0)
       concurrent-ruby (~> 1.0)
     loofah (2.3.1)
