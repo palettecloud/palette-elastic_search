@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    palette-elastic_search (0.4.15)
+    palette-elastic_search (0.4.16)
       activesupport
       elasticsearch-model (~> 5.0)
       elasticsearch-rails (~> 5.0)
