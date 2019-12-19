@@ -163,7 +163,7 @@ module Palette
                          },
                          hyphen_normalizer: {
                           type: 'pattern_replace',
-                          pattern: '[－|-|‐|−|‒|—|–|―|ー|ｰ|─|━|一]',
+                          pattern: '[\x{30FC}\x{2010}-\x{2015}\x{2212}\x{FF70}-]',
                           replacement: '-'
                          },
                          space_trimmer: {
