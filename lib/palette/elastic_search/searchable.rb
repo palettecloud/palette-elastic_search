@@ -76,8 +76,7 @@ module Palette
                          keyword_analyzer: {
                            type: 'custom',
                            tokenizer: 'whitespace',
-                           char_filter: %W(my_icu_normalizer hyphen_normalizer),
-                           filter: %W(hyphen_normalizer)
+                           char_filter: %W(my_icu_normalizer hyphen_normalizer)
                          },
                          company_name_analyzer: {
                            type: 'custom',
