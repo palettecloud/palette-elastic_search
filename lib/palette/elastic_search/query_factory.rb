@@ -36,7 +36,7 @@ module Palette
           when :partial_match
             query_partial = query_partial_for((attributes[attr]).to_s, field)
           when :full_match_with_analyzer
-            query_partial = full_match_for((attributes[attr]).to_s, field, query_pattern[:analyzer])
+            query_partial = full_match_for((attributes[attr]), field, query_pattern[:analyzer])
           when :prefix_match
             query_partial = prefix_match_for((attributes[attr]).to_s, field)
           when :date
@@ -46,7 +46,7 @@ module Palette
           when :geo_point
             filter_partial = geo_point_for(attributes)
           when :nested
-            query_partial = nested_for((attributes[attr]).to_s, field)
+            query_partial = nested_for(attributes[attr], field)
           else
             next
           end
@@ -74,12 +74,22 @@ module Palette
 
       # generate match query
       #
-      # @param [String] query
+      # @param [Hash] attribute
       # @param [String] field
       # @param [String] analyzer
       # @return [Hash]
-      def full_match_for(query, field, analyzer)
-        {bool: {must: [{match: {field => {query: query, analyzer: analyzer}}}]}}
+      def full_match_for(attribute, field, analyzer)
+        if attribute.is_a?(Hash)
+          if attribute[:fields].present?
+            query = {bool: {should: []}}
+            query[:bool][:should] = attribute[:fields].map { |item| { match: { item => { query: attribute[:query].to_s, analyzer: analyzer, operator: :and } } }}
+            return query
+          else
+            {bool: {must: [{match: {field => {query: attribute[:query].to_s, analyzer: analyzer, operator: attribute[:operator] }}}]}}
+          end
+        else
+          {bool: {must: [{match: {field => {query: attribute.to_s, analyzer: analyzer }}}]}}
+        end
       end
 
       # 前方一致のクエリを生成
@@ -143,17 +153,17 @@ module Palette
 
       # for nested query
       #
-      # @param [String] query
+      # @param [Hash] attribute
       # @param [String] field
       # @return [Hash]
-      def nested_for(query, field)
+      def nested_for(attribute, field)
         path = field.to_s.split('.').first
         query_pattern = get_query_pattern(field.to_sym, true)
         case query_pattern[:pattern].to_sym
         when :partial_match
-          return {nested: {path: path, query: query_partial_for(query, field)}}
+          return {nested: {path: path, query: query_partial_for(attribute.to_s, field)}}
         when :full_match_with_analyzer
-          return {nested: {path: path, query: full_match_for(query, field, query_pattern[:analyzer])}}
+          return {nested: {path: path, query: full_match_for(attribute, field, query_pattern[:analyzer])}}
         else
           return nil
         end
@@ -173,13 +183,14 @@ module Palette
           when :date, :integer, :boolean, :geo_point, :nested
             return {pattern: type.to_sym}
           else
-            case analyzer_by(index, field, should_nested).to_sym
+            analyzer = search_analyzer_by(index, field, should_nested).present? ? search_analyzer_by(index, field, should_nested) : analyzer_by(index, field, should_nested)
+            case analyzer
             when *PARTIAL_MATCH_ANALYZERS
               return {pattern: :partial_match}
             when :autocomplete_analyzer
               return {pattern: :prefix_match}
             else
-              return {pattern: :full_match_with_analyzer, analyzer: analyzer_by(index, field, should_nested)}
+              return {pattern: :full_match_with_analyzer, analyzer: analyzer}
             end
           end
         end
@@ -196,6 +207,16 @@ module Palette
           mapping = mapping[field.to_s.split('.').first.to_sym]
         end
         mapping[:type]&.to_sym
+      end
+
+      def search_analyzer_by(index, field, should_nested = false)
+        mapping = @mappings_hashes[index]
+        if should_nested
+          mapping = mapping[field.to_s.split('.').first.to_sym][:properties][field.to_s.split('.').last.to_sym]
+        else
+          mapping = mapping[field.to_s.split('.').first.to_sym]
+        end
+        mapping[:search_analyzer]&.to_sym
       end
 
       def analyzer_by(index, field, should_nested = false)
