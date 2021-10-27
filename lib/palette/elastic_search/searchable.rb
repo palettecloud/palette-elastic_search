@@ -57,13 +57,13 @@ module Palette
                            type: 'ngram',
                            min_gram: 2,
                            max_gram: 2,
-                           token_chars: %W(letter digit)
+                           token_chars: %W(letter digit symbol)
                          },
                          n_gram: {
                            type: 'ngram',
                            min_gram: 1,
                            max_gram: 40,
-                           token_chars: %W(letter digit punctuation)
+                           token_chars: %W(letter digit punctuation symbol)
                          }
                        },
                        analyzer: {
