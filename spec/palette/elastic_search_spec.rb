@@ -13,7 +13,7 @@ RSpec.describe Palette::ElasticSearch do
       User.new.tap do |user|
         # do not request toward es instance
         allow(user.__elasticsearch__).to receive(:index_document)
-        allow(user.__elasticsearch__).to receive(:update_document)
+        allow(user.__elasticsearch__).to receive(:update_document_attributes)
         allow(user.__elasticsearch__).to receive(:delete_document)
       end
     end
@@ -64,7 +64,7 @@ RSpec.describe Palette::ElasticSearch do
         include_context 'configured to true'
 
         specify 'run callbacks' do
-          expect(user.__elasticsearch__).to receive(:update_document)
+          expect(user.__elasticsearch__).to receive(:update_document_attributes)
           subject
         end
       end
@@ -73,7 +73,7 @@ RSpec.describe Palette::ElasticSearch do
         include_context 'configured to false'
 
         specify 'run callbacks' do
-          expect(user.__elasticsearch__).not_to receive(:update_document)
+          expect(user.__elasticsearch__).not_to receive(:update_document_attributes)
           subject
         end
       end
