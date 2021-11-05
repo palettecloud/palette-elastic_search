@@ -18,6 +18,9 @@ module Palette
           begin
             update_document(retry_on_conflict: 1)
           rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
+            # check whether record has already been destroyed
+            palette_delete_document if self.class.find_by(id: self.id).blank?
+
             palette_index_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
             ::Palette::ElasticSearch::Logger.instance.error e
@@ -27,6 +30,8 @@ module Palette
         def palette_delete_document
           begin
             delete_document
+          rescue ::Elasticsearch::Transport::Transport::Errors::NotFound => e
+            ::Palette::ElasticSearch::Logger.instance.error e
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
             ::Palette::ElasticSearch::Logger.instance.error e
           end
