@@ -17,6 +17,7 @@ module Palette
         def palette_update_document
           begin
             # call update_document_attributes directly so as not to call index_document automatically
+            # @see https://github.com/elastic/elasticsearch-rails/blob/v5.1.0/elasticsearch-model/lib/elasticsearch/model/indexing.rb#L400
             update_document_attributes(self.as_indexed_json, {retry_on_conflict: 1})
           rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
             # check whether record has already been destroyed
