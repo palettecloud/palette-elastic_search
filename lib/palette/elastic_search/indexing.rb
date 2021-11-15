@@ -16,8 +16,16 @@ module Palette
 
         def palette_update_document
           begin
-            update_document(retry_on_conflict: 1)
+            # call update_document_attributes directly so as not to call index_document automatically
+            # @see https://github.com/elastic/elasticsearch-rails/blob/v5.1.0/elasticsearch-model/lib/elasticsearch/model/indexing.rb#L400
+            update_document_attributes(self.as_indexed_json, {retry_on_conflict: 1})
           rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
+            # check whether record has already been destroyed
+            unless self.class.exists?(id: self.id)
+              palette_delete_document
+              return
+            end
+
             palette_index_document
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
             ::Palette::ElasticSearch::Logger.instance.error e
@@ -27,6 +35,8 @@ module Palette
         def palette_delete_document
           begin
             delete_document
+          rescue ::Elasticsearch::Transport::Transport::Errors::NotFound => e
+            ::Palette::ElasticSearch::Logger.instance.error e
           rescue ::Elasticsearch::Transport::Transport::Errors::Conflict => e
             ::Palette::ElasticSearch::Logger.instance.error e
           end
