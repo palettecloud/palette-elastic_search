@@ -10,6 +10,7 @@
 /vendor/bundle
 
 .DS_Store
+.ruby-version
 
 # rspec failure tracking
 .rspec_status
