@@ -32,7 +32,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'activesupport'
   spec.add_dependency 'elasticsearch-rails', '~> 7.2.1'
-  spec.add_dependency 'elasticsearch-model'
+  spec.add_dependency 'elasticsearch-model', '~> 7.2.1'
+  spec.add_dependency 'elasticsearch', '< 7.14'
   spec.add_dependency 'newrelic_rpm'
 
   spec.add_development_dependency 'bundler', '~> 2.2.30'
