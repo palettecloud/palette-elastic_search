@@ -68,7 +68,7 @@ module Palette
         private
 
         def current_indices
-          self.__elasticsearch__.client.indices.get_aliases.keys.grep(/^#{self.index_name}/)
+          self.__elasticsearch__.client.indices.get_alias.keys.grep(/^#{self.index_name}/)
         end
 
         def get_new_index_name
