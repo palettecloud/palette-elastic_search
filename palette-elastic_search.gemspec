@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'elasticsearch-model', '~> 5.0'
   spec.add_dependency 'newrelic_rpm'
 
-  spec.add_development_dependency 'bundler', '~> 2.2.30'
+  spec.add_development_dependency 'bundler', '~> 2.3.14'
   spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rspec-rails'
