@@ -59,6 +59,12 @@ module Palette
                            max_gram: 2,
                            token_chars: %W(letter digit symbol)
                          },
+                         deca_gram: {
+                           type: 'ngram',
+                           min_gram: 2,
+                           max_gram: 10,
+                           token_chars: %W(letter digit punctuation symbol)
+                         },
                          n_gram: {
                            type: 'ngram',
                            min_gram: 1,
@@ -85,6 +91,10 @@ module Palette
                          },
                          bigram: {
                            tokenizer: 'bi_gram',
+                           char_filter: %W(my_icu_normalizer space_trimmer hyphen_normalizer)
+                         },
+                         decagram: {
+                           tokenizer: 'deca_gram',
                            char_filter: %W(my_icu_normalizer space_trimmer hyphen_normalizer)
                          },
                          ngram: {
