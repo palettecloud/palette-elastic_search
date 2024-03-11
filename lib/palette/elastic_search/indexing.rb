@@ -69,6 +69,8 @@ module Palette
 
         def current_indices
           self.__elasticsearch__.client.indices.get_alias(name: self.index_name).keys
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          []
         end
 
         def get_new_index_name
