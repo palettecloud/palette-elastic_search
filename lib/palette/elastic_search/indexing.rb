@@ -101,24 +101,26 @@ module Palette
 
         def reindex!(options = {})
           new_index_name = get_new_index_name
-          old_index_name = current_indices.sort.last
+          old_index_names = current_indices
 
           process_start_at = Time.current
           indexing(new_index_name, options)
           process_end_at = Time.current
+          remove_actions = old_index_names.map do |old_index_name|
+            { remove: { index: old_index_name, alias: self.index_name } }
+          end
 
           self.__elasticsearch__.client.indices.update_aliases body: {
-              actions: [
-                  {remove: {index: old_index_name, alias: self.index_name}},
-                  {add: {index: new_index_name, alias: self.index_name}}
-              ]
+            actions: remove_actions.push { add: { index: new_index_name, alias: self.index_name } }
           }
 
           self.where(updated_at: (process_start_at..process_end_at)).find_each do |record|
             record.__elasticsearch__.palette_update_document
           end
 
-          self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
+          old_index_names.each do |old_index_name|
+            self.__elasticsearch__.client.indices.delete index: old_index_name rescue nil
+          end
         end
 
         def check_deprecated_analyzer
