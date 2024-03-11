@@ -163,7 +163,6 @@ module Palette
       def get_query_pattern(field, should_nested = false)
         return {pattern: :geo_point} if field.to_sym == :geo_point
 
-        # return first match of query pattern
         type = type_by(field, should_nested).present? && type_by(field, should_nested)
         case type
         when :date, :integer, :boolean, :geo_point, :nested
