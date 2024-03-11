@@ -31,14 +31,15 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'activesupport'
-  spec.add_dependency 'elasticsearch-rails', '~> 5.0'
-  spec.add_dependency 'elasticsearch-model', '~> 6.1.1'
+  spec.add_dependency 'elasticsearch-rails', '~> 7.0'
+  spec.add_dependency 'elasticsearch-model', '~> 7.0'
   spec.add_dependency 'newrelic_rpm'
 
   spec.add_development_dependency 'bundler', '~> 2.3.14'
   spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rspec-rails'
+  spec.add_development_dependency 'nokogiri', '~> 1.15'
   spec.add_development_dependency 'pry-rails'
   spec.add_development_dependency 'activerecord'
   spec.add_development_dependency 'sqlite3'
