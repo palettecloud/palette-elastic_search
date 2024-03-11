@@ -111,7 +111,7 @@ module Palette
           end
 
           self.__elasticsearch__.client.indices.update_aliases body: {
-            actions: remove_actions.push { add: { index: new_index_name, alias: self.index_name } }
+            actions: remove_actions.push({ add: { index: new_index_name, alias: self.index_name } })
           }
 
           self.where(updated_at: (process_start_at..process_end_at)).find_each do |record|
