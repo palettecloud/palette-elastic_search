@@ -11,11 +11,8 @@ module Palette
       class_methods do
         include ::Palette::ElasticSearch::Indexing::ClassMethods
 
-        # Set preference to _primary_first as default
-        # To ensure results consistency over pages.
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/5.0/search-request-preference.html#search-request-preference
         def search(query_or_payload, options={})
-          __elasticsearch__.search query_or_payload, options.reverse_merge(preference: '_primary_first')
+          __elasticsearch__.search query_or_payload, options.reverse_merge(track_total_hits: true, rest_total_hits_as_int: true)
         end
       end
 
@@ -182,7 +179,8 @@ module Palette
                           replacement: ''
                         }
                        }
-                     }
+                     },
+                     max_ngram_diff: 99
                    }
       end
     end
