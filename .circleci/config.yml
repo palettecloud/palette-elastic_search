@@ -12,7 +12,7 @@ install-bundler: &install-bundler
   run:
     name: gem Install Bundler
     command: |
-      gem install bundler
+      gem install bundler -v 2.4.22
 
 bundle-install: &bundle-install
   run:

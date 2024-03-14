@@ -171,7 +171,7 @@ DEPENDENCIES
   rspec-rails
   rspec-support (~> 3.9.4)
   rspec_junit_formatter
-  sqlite3
+  sqlite3 (~> 1.7)
   webmock
 
 BUNDLED WITH
