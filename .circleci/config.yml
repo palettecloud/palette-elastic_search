@@ -4,7 +4,7 @@ defaults: &defaults
 
 deps-images: &deps-images
   docker:
-    - image: 'circleci/ruby:2.7.6'
+    - image: 'cimg/ruby:2.7.6'
       environment:
         TZ: Asia/Tokyo
 
