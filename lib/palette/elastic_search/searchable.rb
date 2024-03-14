@@ -12,7 +12,7 @@ module Palette
         include ::Palette::ElasticSearch::Indexing::ClassMethods
 
         def search(query_or_payload, options={})
-          __elasticsearch__.search query_or_payload, options.reverse_merge(track_total_hits: true, rest_total_hits_as_int: true)
+          __elasticsearch__.search query_or_payload, options.reverse_merge(track_total_hits: true)
         end
       end
 
@@ -32,7 +32,6 @@ module Palette
         end
 
         index_name { "#{Rails.env.downcase.underscore}_#{self.connection.current_database}_#{self.table_name.underscore}" }
-        document_type self.table_name.underscore.singularize
 
         settings index:
                    {

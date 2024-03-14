@@ -21,17 +21,17 @@ And then execute:
 ```ruby
 class User < ActiveRecord::Base
   include Palette::ElasticSearch::Searchable
-  
+
   attribute :name, String
   attribute :age, Integer
-  
+
   settings do
     mapping _source: { enabled: true }, _all: { enabled: true }, dynamic: false do
-      indexes :name, type: 'string', analyzer: 'bingram'    
+      indexes :name, type: 'string', analyzer: 'bingram'
       indexes :age, type: 'number', analyzer: 'keyword_analyzer'
     end
-  end  
-      
+  end
+
 end
 ```
 
@@ -45,11 +45,11 @@ puts query.to_s # => {:query=>{:bool=>{:must=>[{:bool=>{:must=>[{:match=>{\"name
 ```
 
 If attribute value includes space, value is divided and `AND` query is generated.
-  
+
 ```ruby
 attributes = { name: 'Stebe Jobs', age: 25 }
 query = Palette::ElasticSearch::QueryFactory.build(models, attributes)
-puts query.to_s # => "{:query=>{:bool=>{:must=>[{:bool=>{:must=>[{:simple_query_string=>{:query=>\"Steve\", :fields=>[\"name\"], :analyzer=>\"bigram\"}}, {:simple_query_string=>{:query=>\"Jobs\", :fields=>[\"name\"], :analyzer=>\"bigram\"}}]}}], :filter=>{}}}}" 
+puts query.to_s # => "{:query=>{:bool=>{:must=>[{:bool=>{:must=>[{:simple_query_string=>{:query=>\"Steve\", :fields=>[\"name\"], :analyzer=>\"bigram\"}}, {:simple_query_string=>{:query=>\"Jobs\", :fields=>[\"name\"], :analyzer=>\"bigram\"}}]}}], :filter=>{}}}}"
 ```
 
 ## Analyzer

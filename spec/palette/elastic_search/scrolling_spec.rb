@@ -10,7 +10,7 @@ RSpec.describe Palette::ElasticSearch::Scrolling do
       scroll_stub
     end
     let(:search_stub) do
-      stub_request(:get, "http://dummy-host/development_sample_database_users/user/_search?rest_total_hits_as_int=true&scroll=5m&size=1&track_total_hits=true")
+      stub_request(:get, "http://dummy-host/development_sample_database_users/_search?scroll=5m&size=1&track_total_hits=true")
         .to_return(status: 200, body: search_stub_response.to_json, headers: {content_type: 'application/json'})
     end
     let(:scroll_stub) do
@@ -24,7 +24,10 @@ RSpec.describe Palette::ElasticSearch::Scrolling do
         "timed_out": false,
         "_shards": {"total": 1, "successful": 1, "skipped": 0, "failed": 0},
         "hits": {
-          "total": total,
+          "total": {
+            "value": total,
+            "relation": "eq"
+          },
           "max_score": 1.0,
           "hits": [
             {"_index": "development_sample_database_users", "_type": "user", "_id": "1", "_score": 1.0, "_source": {"id": "1"}}
@@ -39,7 +42,10 @@ RSpec.describe Palette::ElasticSearch::Scrolling do
         "timed_out": false,
         "_shards": {"total": 1, "successful": 1, "skipped": 0, "failed": 0},
         "hits": {
-          "total": total,
+          "total": {
+            "value": total,
+            "relation": "eq"
+          },
           "max_score": 1.0,
           "hits": [
             {"_index": "development_sample_database_users", "_type": "user", "_id": "2", "_score": 1.0, "_source": {"id": "2"}}
@@ -57,7 +63,10 @@ RSpec.describe Palette::ElasticSearch::Scrolling do
           "timed_out": false,
           "_shards": {"total": 1, "successful": 1, "skipped": 0, "failed": 0},
           "hits": {
-            "total": 0,
+            "total": {
+              "value": 0,
+              "relation": "eq"
+            },
             "max_score": 1.0,
             "hits": []
           }

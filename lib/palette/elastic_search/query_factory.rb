@@ -3,14 +3,13 @@ module Palette
     class QueryFactory
       PARTIAL_MATCH_ANALYZERS = %i(kuromoji_analyzer bigram katakana).freeze
 
-      attr_reader :mappings_hashes
+      attr_reader :mappings_hash
 
       def initialize(models)
-        @mappings_hashes = {}
-        models.each do |model|
-          next if @mappings_hashes[model.document_type.to_sym].present?
-          @mappings_hashes[model.document_type.to_sym] = model.mappings.to_hash[model.document_type.to_sym][:properties]
-        end
+        @mappings_hash =
+          models.reduce({}) do |result, model|
+            result.reverse_merge(model.mappings.to_hash[:properties])
+          end
       end
 
       # @param [Array<ActiveRecord::Base>] models
@@ -154,8 +153,6 @@ module Palette
           return {nested: {path: path, query: query_partial_for(query, field)}}
         when :full_match_with_analyzer
           return {nested: {path: path, query: full_match_for(query, field, query_pattern[:analyzer])}}
-        else
-          return nil
         end
       end
 
@@ -166,21 +163,18 @@ module Palette
       def get_query_pattern(field, should_nested = false)
         return {pattern: :geo_point} if field.to_sym == :geo_point
 
-        # return first match of query pattern
-        @mappings_hashes.keys.each do |index|
-          type = type_by(index, field, should_nested).present? && type_by(index, field, should_nested)
-          case type
-          when :date, :integer, :boolean, :geo_point, :nested
-            return {pattern: type.to_sym}
+        type = type_by(field, should_nested).present? && type_by(field, should_nested)
+        case type
+        when :date, :integer, :boolean, :geo_point, :nested
+          return {pattern: type.to_sym}
+        else
+          case analyzer_by(field, should_nested).to_sym
+          when *PARTIAL_MATCH_ANALYZERS
+            return {pattern: :partial_match}
+          when :autocomplete_analyzer
+            return {pattern: :prefix_match}
           else
-            case analyzer_by(index, field, should_nested).to_sym
-            when *PARTIAL_MATCH_ANALYZERS
-              return {pattern: :partial_match}
-            when :autocomplete_analyzer
-              return {pattern: :prefix_match}
-            else
-              return {pattern: :full_match_with_analyzer, analyzer: analyzer_by(index, field, should_nested)}
-            end
+            return {pattern: :full_match_with_analyzer, analyzer: analyzer_by(field, should_nested)}
           end
         end
 
@@ -188,23 +182,23 @@ module Palette
         {}
       end
 
-      def type_by(index, field, should_nested = false)
-        mapping = @mappings_hashes[index]
-        if should_nested
-          mapping = mapping[field.to_s.split('.').first.to_sym][:properties][field.to_s.split('.').last.to_sym]
-        else
-          mapping = mapping[field.to_s.split('.').first.to_sym]
-        end
+      def type_by(field, should_nested = false)
+        mapping =
+          if should_nested
+            mappings_hash[field.to_s.split('.').first.to_sym][:properties][field.to_s.split('.').last.to_sym]
+          else
+            mappings_hash[field.to_s.split('.').first.to_sym]
+          end
         mapping[:type]&.to_sym
       end
 
-      def analyzer_by(index, field, should_nested = false)
-        mapping = @mappings_hashes[index]
-        if should_nested
-          mapping = mapping[field.to_s.split('.').first.to_sym][:properties][field.to_s.split('.').last.to_sym]
-        else
-          mapping = mapping[field.to_s.split('.').first.to_sym]
-        end
+      def analyzer_by(field, should_nested = false)
+        mapping =
+          if should_nested
+            mappings_hash[field.to_s.split('.').first.to_sym][:properties][field.to_s.split('.').last.to_sym]
+          else
+            mappings_hash[field.to_s.split('.').first.to_sym]
+          end
         mapping[:analyzer]&.to_sym
       end
     end
