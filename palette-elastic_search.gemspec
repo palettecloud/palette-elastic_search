@@ -39,9 +39,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rspec-rails'
+  spec.add_development_dependency 'rspec-support', '~> 3.9.4'
+  spec.add_development_dependency 'nokogiri', '~> 1.15'
   spec.add_development_dependency 'pry-rails'
   spec.add_development_dependency 'activerecord'
-  spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'sqlite3', '~> 1.7'
   spec.add_development_dependency 'rspec_junit_formatter'
   spec.add_development_dependency 'webmock'
 end
