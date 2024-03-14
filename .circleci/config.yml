@@ -4,7 +4,7 @@ defaults: &defaults
 
 deps-images: &deps-images
   docker:
-    - image: 'circleci/ruby:2.6.0'
+    - image: 'cimg/ruby:2.7.6'
       environment:
         TZ: Asia/Tokyo
 
@@ -12,7 +12,7 @@ install-bundler: &install-bundler
   run:
     name: gem Install Bundler
     command: |
-      gem install bundler -v 2.4.22
+      gem install bundler -v 2.3.27
 
 bundle-install: &bundle-install
   run:
